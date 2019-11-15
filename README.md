@@ -1,1 +1,5 @@
 # SMC_600Test
+
+LEADSHINE SMC600 
+默认连接IP 192.168.1.77
+5axis test
