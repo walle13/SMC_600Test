@@ -16,7 +16,7 @@ namespace SMC_600Test
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new CB_Start());
+            Application.Run(new Form1());
         }
     }
 }
