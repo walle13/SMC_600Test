@@ -43,7 +43,8 @@
             this.X_axis_sub = new System.Windows.Forms.Button();
             this.Y_axis_sub = new System.Windows.Forms.Button();
             this.Z_axis_sub = new System.Windows.Forms.Button();
-            this.HOME = new System.Windows.Forms.Button();
+            this.softHome = new System.Windows.Forms.Button();
+            this.Home = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // SB_Star
@@ -54,7 +55,6 @@
             this.SB_Star.TabIndex = 0;
             this.SB_Star.Text = "启动";
             this.SB_Star.UseVisualStyleBackColor = true;
-            this.SB_Star.Click += new System.EventHandler(this.SB_Start_Click);
             this.SB_Star.MouseDown += new System.Windows.Forms.MouseEventHandler(this.SB_Star_MouseDown);
             this.SB_Star.MouseUp += new System.Windows.Forms.MouseEventHandler(this.SB_Star_MouseUp);
             // 
@@ -121,80 +121,97 @@
             // 
             // X_axis_plus
             // 
-            this.X_axis_plus.Location = new System.Drawing.Point(28, 158);
+            this.X_axis_plus.Location = new System.Drawing.Point(51, 164);
             this.X_axis_plus.Name = "X_axis_plus";
             this.X_axis_plus.Size = new System.Drawing.Size(70, 50);
             this.X_axis_plus.TabIndex = 7;
             this.X_axis_plus.Text = "X+";
             this.X_axis_plus.UseVisualStyleBackColor = true;
-            this.X_axis_plus.Click += new System.EventHandler(this.X_axis_plus_Click);
+            this.X_axis_plus.MouseDown += new System.Windows.Forms.MouseEventHandler(this.X_axis_plus_MouseDown);
+            this.X_axis_plus.MouseUp += new System.Windows.Forms.MouseEventHandler(this.X_axis_plus_MouseUp);
             // 
             // Y_axis_plus
             // 
-            this.Y_axis_plus.Location = new System.Drawing.Point(121, 158);
+            this.Y_axis_plus.Location = new System.Drawing.Point(144, 164);
             this.Y_axis_plus.Name = "Y_axis_plus";
             this.Y_axis_plus.Size = new System.Drawing.Size(70, 50);
             this.Y_axis_plus.TabIndex = 8;
             this.Y_axis_plus.Text = "Y+";
             this.Y_axis_plus.UseVisualStyleBackColor = true;
-            this.Y_axis_plus.Click += new System.EventHandler(this.Y_axis_plus_Click);
+            this.Y_axis_plus.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Y_axis_plus_MouseDown);
+            this.Y_axis_plus.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Y_axis_plus_MouseUp);
             // 
             // Z_axis_plus
             // 
-            this.Z_axis_plus.Location = new System.Drawing.Point(221, 158);
+            this.Z_axis_plus.Location = new System.Drawing.Point(235, 164);
             this.Z_axis_plus.Name = "Z_axis_plus";
             this.Z_axis_plus.Size = new System.Drawing.Size(70, 50);
             this.Z_axis_plus.TabIndex = 9;
             this.Z_axis_plus.Text = "Z+";
             this.Z_axis_plus.UseVisualStyleBackColor = true;
-            this.Z_axis_plus.Click += new System.EventHandler(this.Z_axis_plus_Click);
+            this.Z_axis_plus.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Z_axis_plus_MouseDown);
+            this.Z_axis_plus.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Z_axis_plus_MouseUp);
             // 
             // X_axis_sub
             // 
-            this.X_axis_sub.Location = new System.Drawing.Point(28, 214);
+            this.X_axis_sub.Location = new System.Drawing.Point(51, 220);
             this.X_axis_sub.Name = "X_axis_sub";
             this.X_axis_sub.Size = new System.Drawing.Size(70, 50);
             this.X_axis_sub.TabIndex = 10;
             this.X_axis_sub.Text = "X-";
             this.X_axis_sub.UseVisualStyleBackColor = true;
-            this.X_axis_sub.Click += new System.EventHandler(this.X_axis_sub_Click);
+            this.X_axis_sub.MouseDown += new System.Windows.Forms.MouseEventHandler(this.X_axis_sub_MouseDown);
+            this.X_axis_sub.MouseUp += new System.Windows.Forms.MouseEventHandler(this.X_axis_sub_MouseUp);
             // 
             // Y_axis_sub
             // 
-            this.Y_axis_sub.Location = new System.Drawing.Point(121, 214);
+            this.Y_axis_sub.Location = new System.Drawing.Point(144, 220);
             this.Y_axis_sub.Name = "Y_axis_sub";
             this.Y_axis_sub.Size = new System.Drawing.Size(70, 50);
             this.Y_axis_sub.TabIndex = 11;
             this.Y_axis_sub.Text = "Y-";
             this.Y_axis_sub.UseVisualStyleBackColor = true;
-            this.Y_axis_sub.Click += new System.EventHandler(this.Y_axis_sub_Click);
+            this.Y_axis_sub.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Y_axis_sub_MouseDown);
+            this.Y_axis_sub.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Y_axis_sub_MouseUp);
             // 
             // Z_axis_sub
             // 
-            this.Z_axis_sub.Location = new System.Drawing.Point(221, 214);
+            this.Z_axis_sub.Location = new System.Drawing.Point(235, 220);
             this.Z_axis_sub.Name = "Z_axis_sub";
             this.Z_axis_sub.Size = new System.Drawing.Size(70, 50);
             this.Z_axis_sub.TabIndex = 12;
             this.Z_axis_sub.Text = "Z-";
             this.Z_axis_sub.UseVisualStyleBackColor = true;
-            this.Z_axis_sub.Click += new System.EventHandler(this.Z_axis_sub_Click);
+            this.Z_axis_sub.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Z_axis_sub_MouseDown);
+            this.Z_axis_sub.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Z_axis_sub_MouseUp);
             // 
-            // HOME
+            // softHome
             // 
-            this.HOME.Location = new System.Drawing.Point(320, 168);
-            this.HOME.Name = "HOME";
-            this.HOME.Size = new System.Drawing.Size(74, 86);
-            this.HOME.TabIndex = 13;
-            this.HOME.Text = "HOME";
-            this.HOME.UseVisualStyleBackColor = true;
-            this.HOME.Click += new System.EventHandler(this.HOME_Click);
+            this.softHome.Location = new System.Drawing.Point(338, 174);
+            this.softHome.Name = "softHome";
+            this.softHome.Size = new System.Drawing.Size(74, 86);
+            this.softHome.TabIndex = 13;
+            this.softHome.Text = "HOME";
+            this.softHome.UseVisualStyleBackColor = true;
+            this.softHome.Click += new System.EventHandler(this.softHome_Click);
+            // 
+            // Home
+            // 
+            this.Home.Location = new System.Drawing.Point(341, 73);
+            this.Home.Name = "Home";
+            this.Home.Size = new System.Drawing.Size(86, 52);
+            this.Home.TabIndex = 14;
+            this.Home.Text = "机械找零";
+            this.Home.UseVisualStyleBackColor = true;
+            this.Home.Click += new System.EventHandler(this.MachHome_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(512, 364);
-            this.Controls.Add(this.HOME);
+            this.ClientSize = new System.Drawing.Size(507, 364);
+            this.Controls.Add(this.Home);
+            this.Controls.Add(this.softHome);
             this.Controls.Add(this.Z_axis_sub);
             this.Controls.Add(this.Y_axis_sub);
             this.Controls.Add(this.X_axis_sub);
@@ -232,7 +249,8 @@
         public System.Windows.Forms.Button X_axis_sub;
         public System.Windows.Forms.Button Y_axis_sub;
         public System.Windows.Forms.Button Z_axis_sub;
-        public System.Windows.Forms.Button HOME;
+        public System.Windows.Forms.Button softHome;
+        private System.Windows.Forms.Button Home;
     }
 }
 
