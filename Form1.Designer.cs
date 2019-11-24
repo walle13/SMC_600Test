@@ -45,6 +45,9 @@
             this.Z_axis_sub = new System.Windows.Forms.Button();
             this.softHome = new System.Windows.Forms.Button();
             this.Home = new System.Windows.Forms.Button();
+            this.NewForm1 = new System.Windows.Forms.Button();
+            this.performanceCounter1 = new System.Diagnostics.PerformanceCounter();
+            ((System.ComponentModel.ISupportInitialize)(this.performanceCounter1)).BeginInit();
             this.SuspendLayout();
             // 
             // SB_Star
@@ -121,7 +124,7 @@
             // 
             // X_axis_plus
             // 
-            this.X_axis_plus.Location = new System.Drawing.Point(51, 164);
+            this.X_axis_plus.Location = new System.Drawing.Point(20, 168);
             this.X_axis_plus.Name = "X_axis_plus";
             this.X_axis_plus.Size = new System.Drawing.Size(70, 50);
             this.X_axis_plus.TabIndex = 7;
@@ -132,7 +135,7 @@
             // 
             // Y_axis_plus
             // 
-            this.Y_axis_plus.Location = new System.Drawing.Point(144, 164);
+            this.Y_axis_plus.Location = new System.Drawing.Point(113, 168);
             this.Y_axis_plus.Name = "Y_axis_plus";
             this.Y_axis_plus.Size = new System.Drawing.Size(70, 50);
             this.Y_axis_plus.TabIndex = 8;
@@ -143,7 +146,7 @@
             // 
             // Z_axis_plus
             // 
-            this.Z_axis_plus.Location = new System.Drawing.Point(235, 164);
+            this.Z_axis_plus.Location = new System.Drawing.Point(204, 168);
             this.Z_axis_plus.Name = "Z_axis_plus";
             this.Z_axis_plus.Size = new System.Drawing.Size(70, 50);
             this.Z_axis_plus.TabIndex = 9;
@@ -154,7 +157,7 @@
             // 
             // X_axis_sub
             // 
-            this.X_axis_sub.Location = new System.Drawing.Point(51, 220);
+            this.X_axis_sub.Location = new System.Drawing.Point(20, 224);
             this.X_axis_sub.Name = "X_axis_sub";
             this.X_axis_sub.Size = new System.Drawing.Size(70, 50);
             this.X_axis_sub.TabIndex = 10;
@@ -165,7 +168,7 @@
             // 
             // Y_axis_sub
             // 
-            this.Y_axis_sub.Location = new System.Drawing.Point(144, 220);
+            this.Y_axis_sub.Location = new System.Drawing.Point(113, 224);
             this.Y_axis_sub.Name = "Y_axis_sub";
             this.Y_axis_sub.Size = new System.Drawing.Size(70, 50);
             this.Y_axis_sub.TabIndex = 11;
@@ -176,7 +179,7 @@
             // 
             // Z_axis_sub
             // 
-            this.Z_axis_sub.Location = new System.Drawing.Point(235, 220);
+            this.Z_axis_sub.Location = new System.Drawing.Point(204, 224);
             this.Z_axis_sub.Name = "Z_axis_sub";
             this.Z_axis_sub.Size = new System.Drawing.Size(70, 50);
             this.Z_axis_sub.TabIndex = 12;
@@ -187,7 +190,7 @@
             // 
             // softHome
             // 
-            this.softHome.Location = new System.Drawing.Point(338, 174);
+            this.softHome.Location = new System.Drawing.Point(280, 177);
             this.softHome.Name = "softHome";
             this.softHome.Size = new System.Drawing.Size(74, 86);
             this.softHome.TabIndex = 13;
@@ -205,11 +208,22 @@
             this.Home.UseVisualStyleBackColor = true;
             this.Home.Click += new System.EventHandler(this.MachHome_Click);
             // 
+            // NewForm1
+            // 
+            this.NewForm1.Location = new System.Drawing.Point(376, 177);
+            this.NewForm1.Name = "NewForm1";
+            this.NewForm1.Size = new System.Drawing.Size(79, 86);
+            this.NewForm1.TabIndex = 15;
+            this.NewForm1.Text = "IO状态";
+            this.NewForm1.UseVisualStyleBackColor = true;
+            this.NewForm1.Click += new System.EventHandler(this.NewForm1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(507, 364);
+            this.Controls.Add(this.NewForm1);
             this.Controls.Add(this.Home);
             this.Controls.Add(this.softHome);
             this.Controls.Add(this.Z_axis_sub);
@@ -251,6 +265,8 @@
         public System.Windows.Forms.Button Z_axis_sub;
         public System.Windows.Forms.Button softHome;
         private System.Windows.Forms.Button Home;
+        private System.Windows.Forms.Button NewForm1;
+        private System.Diagnostics.PerformanceCounter performanceCounter1;
     }
 }
 

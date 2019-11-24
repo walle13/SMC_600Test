@@ -35,6 +35,7 @@ namespace SMC_600Test
             InitializeComponent();
         }
 
+        
         private void Form1_Load(object sender, EventArgs e)
         {
             //short res = LTSMC.smc_board_init(_ConnectNo, 2, "192.168.1.77", 115200);//获取卡数量
@@ -145,6 +146,12 @@ namespace SMC_600Test
         {
             timer1.Stop();
             LTSMC.smc_board_close(_ConnectNo);
+            //Application.Exit();
+            System.Environment.Exit(0);  //如何关闭全部form
+            //foreach (Form1 frm in this.MdiChildren)
+            //{
+            //    frm.Close();
+            //}
         }
 
         private void timer1_Tick_1(object sender, EventArgs e)
@@ -300,6 +307,12 @@ namespace SMC_600Test
         private void MachHome_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void NewForm1_Click(object sender, EventArgs e)
+        {
+            Form2 f2 = new Form2();
+            f2.Show();
         }
     }
 }
