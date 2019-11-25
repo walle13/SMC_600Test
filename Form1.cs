@@ -313,6 +313,7 @@ namespace SMC_600Test
         {
             Form2 f2 = new Form2();
             f2.Show();
+            //Application.Run(new Form2());
         }
     }
 }
