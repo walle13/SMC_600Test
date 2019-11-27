@@ -25,8 +25,8 @@ namespace SMC_600Test
         double tacc = 0.1;          //加速时间
         double tdec = 0.1;      //减速时间
         double s_pare = 0.05;   //s形平滑系数
-        double max_dist = 600;    //运动距离
-        double min_dist = 0;    //运动距离
+        double max_dist = 600;    //运动距离， 脉冲？
+        double min_dist = 0;    //运动距离，
         ushort mode = 0;     //停止模式，0；减速停止，1；紧急停止
 
 
@@ -53,7 +53,7 @@ namespace SMC_600Test
             //LTSMC.smc_set_pulse_outmode(_ConnectNo, 5, 0);//设置脉冲模式
             //
             //timer1.Start();
-                   }
+        }
 
         private void connect_Click(object sender, EventArgs e)
         {
@@ -154,31 +154,7 @@ namespace SMC_600Test
             //}
         }
 
-        private void timer1_Tick_1(object sender, EventArgs e)
-        {
-            StringBuilder sb = new StringBuilder();
-            //
-            double pos = 0.0;
-            LTSMC.smc_get_position_unit(_ConnectNo, 0, ref pos);
-            sb.AppendFormat("X={0},", pos);
-            LTSMC.smc_get_position_unit(_ConnectNo, 1, ref pos);
-            sb.AppendFormat("Y={0},", pos);
-            LTSMC.smc_get_position_unit(_ConnectNo, 2, ref pos);
-            sb.AppendFormat("Z={0},", pos);
-            LTSMC.smc_get_position_unit(_ConnectNo, 3, ref pos);
-            sb.AppendFormat("U={0},", pos);
-            LTSMC.smc_get_position_unit(_ConnectNo, 4, ref pos);
-            sb.AppendFormat("V={0},", pos);
-            LTSMC.smc_get_position_unit(_ConnectNo, 5, ref pos);
-            sb.AppendFormat("W={0},", pos);
-            double speed = 0;
-            LTSMC.smc_read_current_speed_unit(_ConnectNo, 0, ref speed);
-            sb.AppendFormat("Speed={0},", speed);
-            //
-            textBox1.Text = sb.ToString();
-            Console.WriteLine("789");
-        }
-
+     
         private void SB_Clear_Click(object sender, EventArgs e)
         {
             LTSMC.smc_set_position_unit(_ConnectNo, 0, 0);//位置清零
@@ -215,7 +191,7 @@ namespace SMC_600Test
             LTSMC.smc_stop(CardNo, x_axis, mode);  //轴停止运动 （卡号， 运动轴号 ， 停止模式：0；减速停止，1；紧急停止）
         }
 
-        private void X_axis_plus_MouseDown(object sender, MouseEventArgs e)
+        private void X_axis_plus_MouseDown(object sender, MouseEventArgs e)  // X+
         {
             
             LTSMC.smc_set_profile_unit(CardNo, x_axis, start_speed, speed, tacc, tdec, stop_speed);//设置速度参数
@@ -229,7 +205,7 @@ namespace SMC_600Test
             LTSMC.smc_stop(CardNo, x_axis, mode);  //轴停止运动 （卡号， 运动轴号 ， 停止模式：0；减速停止，1；紧急停止）
         }
 
-        private void X_axis_sub_MouseDown(object sender, MouseEventArgs e)
+        private void X_axis_sub_MouseDown(object sender, MouseEventArgs e)  // X-
         {
             
             LTSMC.smc_set_profile_unit(CardNo, x_axis, start_speed, speed, tacc, tdec, stop_speed);//设置速度参数
@@ -243,7 +219,7 @@ namespace SMC_600Test
             LTSMC.smc_stop(CardNo, x_axis, mode);  //轴停止运动 （卡号， 运动轴号 ， 停止模式：0；减速停止，1；紧急停止）
         }
 
-        private void Y_axis_plus_MouseDown(object sender, MouseEventArgs e)
+        private void Y_axis_plus_MouseDown(object sender, MouseEventArgs e)     // Y+
         {
             
             LTSMC.smc_set_profile_unit(CardNo, y_axis, start_speed, speed, tacc, tdec, stop_speed);//设置速度参数
@@ -259,7 +235,7 @@ namespace SMC_600Test
             LTSMC.smc_stop(CardNo, y_axis, mode);  //轴停止运动 （卡号， 运动轴号 ， 停止模式：0；减速停止，1；紧急停止）
         }
 
-        private void Y_axis_sub_MouseDown(object sender, MouseEventArgs e)
+        private void Y_axis_sub_MouseDown(object sender, MouseEventArgs e)      // Y-
         {
             
             LTSMC.smc_set_profile_unit(CardNo, y_axis, start_speed, speed, tacc, tdec, stop_speed);//设置速度参数
@@ -274,7 +250,7 @@ namespace SMC_600Test
             LTSMC.smc_stop(CardNo, y_axis, mode);  //轴停止运动 （卡号， 运动轴号 ， 停止模式：0；减速停止，1；紧急停止）
         }
 
-        private void Z_axis_plus_MouseDown(object sender, MouseEventArgs e)
+        private void Z_axis_plus_MouseDown(object sender, MouseEventArgs e)     //Z+
         {
             
             LTSMC.smc_set_profile_unit(CardNo, z_axis, start_speed, speed, tacc, tdec, stop_speed);//设置速度参数
@@ -289,7 +265,7 @@ namespace SMC_600Test
             LTSMC.smc_stop(CardNo, z_axis, mode);  //轴停止运动 （卡号， 运动轴号 ， 停止模式：0；减速停止，1；紧急停止）
         }
 
-        private void Z_axis_sub_MouseDown(object sender, MouseEventArgs e)
+        private void Z_axis_sub_MouseDown(object sender, MouseEventArgs e)      //Z-
         {
             
             LTSMC.smc_set_profile_unit(CardNo, z_axis, start_speed, speed, tacc, tdec, stop_speed);//设置速度参数
@@ -315,5 +291,8 @@ namespace SMC_600Test
             f2.Show();
             //Application.Run(new Form2());
         }
+
+
     }
+
 }
