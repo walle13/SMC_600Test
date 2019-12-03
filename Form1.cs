@@ -292,7 +292,22 @@ namespace SMC_600Test
             //Application.Run(new Form2());
         }
 
+        private void Send_Click(object sender, EventArgs e)
+        {
+            string username = textBox5.Text;
+            Console.WriteLine(username);
+            textBox4.Text = textBox4.Text + textBox5.Text + "\r\n";  //+Environment.NewLine 默认换行符
+            this.textBox4.Focus();//获取焦点
+            this.textBox4.Select(this.textBox4.TextLength, 0);//光标定位到文本最后
+            this.textBox4.ScrollToCaret();//滚动到光标处
+            textBox5.Text = "";
+        }
 
+        private void ClearCode_Click(object sender, EventArgs e)
+        {
+            textBox4.Text = "";
+            textBox5.Text = "";
+        }
     }
 
 }
