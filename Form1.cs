@@ -28,7 +28,12 @@ namespace SMC_600Test
         double max_dist = 600;    //运动距离， 脉冲？
         double min_dist = 0;    //运动距离，
         ushort mode = 0;     //停止模式，0；减速停止，1；紧急停止
-
+        double workpos_X = 0.0;
+        double workpos_Y = 0.0;
+        double workpos_Z = 0.0;
+        double workpos_U = 0.0;
+        double workpos_V = 0.0;
+        double workpos_W = 0.0;
 
         public Form1()
         {
@@ -120,25 +125,34 @@ namespace SMC_600Test
         private void timer1_Tick(object sender, EventArgs e)
         {
             StringBuilder sb = new StringBuilder();
+            StringBuilder sbWork = new StringBuilder();
             //
             double pos = 0.0;
+            
             LTSMC.smc_get_position_unit(_ConnectNo, 0, ref pos);
             sb.AppendFormat("X={0},", pos);
+            sbWork.AppendFormat("X={0},", pos + workpos_X);
             LTSMC.smc_get_position_unit(_ConnectNo, 1, ref pos);
             sb.AppendFormat("Y={0},", pos);
+            sbWork.AppendFormat("X={0},", pos + workpos_Y);
             LTSMC.smc_get_position_unit(_ConnectNo, 2, ref pos);
             sb.AppendFormat("Z={0},", pos);
+            sbWork.AppendFormat("X={0},", pos + workpos_Z);
             LTSMC.smc_get_position_unit(_ConnectNo, 3, ref pos);
             sb.AppendFormat("U={0},", pos);
+            sbWork.AppendFormat("X={0},", pos + workpos_U);
             LTSMC.smc_get_position_unit(_ConnectNo, 4, ref pos);
             sb.AppendFormat("V={0},", pos);
+            sbWork.AppendFormat("X={0},", pos + workpos_V);
             LTSMC.smc_get_position_unit(_ConnectNo, 5, ref pos);
             sb.AppendFormat("W={0},", pos);
+            sbWork.AppendFormat("X={0},", pos + workpos_W);
             double speed = 0;
             LTSMC.smc_read_current_speed_unit(_ConnectNo, 0, ref speed);
             sb.AppendFormat("Speed={0},", speed);
             //
             textBox1.Text = sb.ToString();
+            textBox2.Text = sbWork.ToString();
             // Console.WriteLine("456");
         }
 
@@ -283,6 +297,35 @@ namespace SMC_600Test
         private void MachHome_Click(object sender, EventArgs e)
         {
 
+
+            double start = 1000.0;  //停止速度
+     
+            
+
+            short ret = 0; //错误返回
+            ushort axis = y_axis; //运动轴号，范围：0~最大轴数-1y
+            double Start_Vel = 1000;//回零起始速度，范围：0~2MHz频率
+            double Max_Vel = 10000;//回零运行速度，范围：0~2MHz频率
+            double Tacc = 0.1; //加速时间，单位s，范围：0.001~10s
+            double Tdec = 0.2;  //减速时间,单位s，范围：0.001~10s
+            ushort org_logic = 0; //设置原点有效电平：0-低电平，1-高电平
+            double filter = 0; //滤波时间为0，保留参数，无意义
+            ushort home_dir = 1; //设置回原点方向：0-负向、1-正向
+            ushort mode = 1; //设置回原点模式为一次回原点加反找
+            ushort Source = 0; //设置计数源为脉冲计数 0：指令位置计数器，1：编码器计数器
+            ushort enable = 2; //设置完成回原点后计数使能0：禁止。1:先清0，然后运动到指定位置（相对位置）。2:先运动到指定位置（相对位置），再清0
+            double position = 100; //设置完成回原点后计数值
+
+            LTSMC.smc_set_pulse_outmode(_ConnectNo, axis, 0);//设置脉冲模式
+            LTSMC.smc_set_equiv(_ConnectNo, axis, 1);//设置脉冲当量
+            LTSMC.smc_set_alm_mode(_ConnectNo, axis, 0, 0, 0);//设置报警使能，关闭报警
+            LTSMC.smc_write_sevon_pin(_ConnectNo, axis, 0);//打开伺服使能
+            LTSMC.smc_set_home_pin_logic(_ConnectNo, axis, 0, 0);//设置原点低电平有效
+            LTSMC.smc_set_home_profile_unit(_ConnectNo, axis, Start_Vel, Max_Vel, Tacc, Tdec);//设置 轴号、起始速度、运行速度、加速时间、减速时间
+            LTSMC.smc_set_homemode(_ConnectNo, axis, home_dir, 1, mode, Source);//设置回零模式 原点方向、原点速度模式、原点模式、返回回零计数源
+            LTSMC.smc_set_home_position_unit(_ConnectNo, axis, enable, position);//设置偏移模式
+            LTSMC.smc_home_move(_ConnectNo, axis);//启动回零
+
         }
 
         private void NewForm1_Click(object sender, EventArgs e)
@@ -307,6 +350,19 @@ namespace SMC_600Test
         {
             textBox4.Text = "";
             textBox5.Text = "";
+        }
+
+        private void setWorkpiece_Click(object sender, EventArgs e)
+        {
+            workpos_X = double.Parse(textBox_Xaxis.Text);
+            workpos_Y = double.Parse(textBox_Yaxis.Text);
+            workpos_Z = double.Parse(textBox_Zaxis.Text);
+
+        }
+
+        private void setCurrent_Click(object sender, EventArgs e)
+        {
+
         }
     }
 
