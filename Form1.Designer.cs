@@ -64,6 +64,10 @@
             this.textBox_Zaxis = new System.Windows.Forms.TextBox();
             this.setWorkpiece = new System.Windows.Forms.Button();
             this.setCurrent = new System.Windows.Forms.Button();
+            this.textBox_Xspeed = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.textBox_Zspeed = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.performanceCounter1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -142,7 +146,7 @@
             // 
             // X_axis_plus
             // 
-            this.X_axis_plus.Location = new System.Drawing.Point(12, 140);
+            this.X_axis_plus.Location = new System.Drawing.Point(12, 156);
             this.X_axis_plus.Name = "X_axis_plus";
             this.X_axis_plus.Size = new System.Drawing.Size(70, 50);
             this.X_axis_plus.TabIndex = 7;
@@ -153,7 +157,7 @@
             // 
             // Y_axis_plus
             // 
-            this.Y_axis_plus.Location = new System.Drawing.Point(105, 140);
+            this.Y_axis_plus.Location = new System.Drawing.Point(105, 156);
             this.Y_axis_plus.Name = "Y_axis_plus";
             this.Y_axis_plus.Size = new System.Drawing.Size(70, 50);
             this.Y_axis_plus.TabIndex = 8;
@@ -164,7 +168,7 @@
             // 
             // Z_axis_plus
             // 
-            this.Z_axis_plus.Location = new System.Drawing.Point(196, 140);
+            this.Z_axis_plus.Location = new System.Drawing.Point(196, 156);
             this.Z_axis_plus.Name = "Z_axis_plus";
             this.Z_axis_plus.Size = new System.Drawing.Size(70, 50);
             this.Z_axis_plus.TabIndex = 9;
@@ -175,7 +179,7 @@
             // 
             // X_axis_sub
             // 
-            this.X_axis_sub.Location = new System.Drawing.Point(12, 196);
+            this.X_axis_sub.Location = new System.Drawing.Point(12, 212);
             this.X_axis_sub.Name = "X_axis_sub";
             this.X_axis_sub.Size = new System.Drawing.Size(70, 50);
             this.X_axis_sub.TabIndex = 10;
@@ -186,7 +190,7 @@
             // 
             // Y_axis_sub
             // 
-            this.Y_axis_sub.Location = new System.Drawing.Point(105, 196);
+            this.Y_axis_sub.Location = new System.Drawing.Point(105, 212);
             this.Y_axis_sub.Name = "Y_axis_sub";
             this.Y_axis_sub.Size = new System.Drawing.Size(70, 50);
             this.Y_axis_sub.TabIndex = 11;
@@ -197,7 +201,7 @@
             // 
             // Z_axis_sub
             // 
-            this.Z_axis_sub.Location = new System.Drawing.Point(196, 196);
+            this.Z_axis_sub.Location = new System.Drawing.Point(196, 212);
             this.Z_axis_sub.Name = "Z_axis_sub";
             this.Z_axis_sub.Size = new System.Drawing.Size(70, 50);
             this.Z_axis_sub.TabIndex = 12;
@@ -208,7 +212,7 @@
             // 
             // softHome
             // 
-            this.softHome.Location = new System.Drawing.Point(280, 140);
+            this.softHome.Location = new System.Drawing.Point(280, 156);
             this.softHome.Name = "softHome";
             this.softHome.Size = new System.Drawing.Size(70, 50);
             this.softHome.TabIndex = 13;
@@ -228,7 +232,7 @@
             // 
             // NewForm1
             // 
-            this.NewForm1.Location = new System.Drawing.Point(280, 196);
+            this.NewForm1.Location = new System.Drawing.Point(280, 212);
             this.NewForm1.Name = "NewForm1";
             this.NewForm1.Size = new System.Drawing.Size(70, 50);
             this.NewForm1.TabIndex = 15;
@@ -280,7 +284,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(366, 199);
+            this.label3.Location = new System.Drawing.Point(366, 204);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(53, 12);
             this.label3.TabIndex = 20;
@@ -326,7 +330,7 @@
             // 
             // textBox_Xaxis
             // 
-            this.textBox_Xaxis.Location = new System.Drawing.Point(35, 279);
+            this.textBox_Xaxis.Location = new System.Drawing.Point(35, 284);
             this.textBox_Xaxis.Name = "textBox_Xaxis";
             this.textBox_Xaxis.Size = new System.Drawing.Size(47, 21);
             this.textBox_Xaxis.TabIndex = 25;
@@ -335,7 +339,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(18, 282);
+            this.label4.Location = new System.Drawing.Point(18, 287);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(17, 12);
             this.label4.TabIndex = 26;
@@ -344,7 +348,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(88, 282);
+            this.label5.Location = new System.Drawing.Point(88, 287);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(17, 12);
             this.label5.TabIndex = 28;
@@ -352,7 +356,7 @@
             // 
             // textBox_Yaxis
             // 
-            this.textBox_Yaxis.Location = new System.Drawing.Point(105, 279);
+            this.textBox_Yaxis.Location = new System.Drawing.Point(105, 284);
             this.textBox_Yaxis.Name = "textBox_Yaxis";
             this.textBox_Yaxis.Size = new System.Drawing.Size(47, 21);
             this.textBox_Yaxis.TabIndex = 27;
@@ -361,7 +365,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(162, 282);
+            this.label6.Location = new System.Drawing.Point(162, 287);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(17, 12);
             this.label6.TabIndex = 30;
@@ -369,7 +373,7 @@
             // 
             // textBox_Zaxis
             // 
-            this.textBox_Zaxis.Location = new System.Drawing.Point(179, 279);
+            this.textBox_Zaxis.Location = new System.Drawing.Point(179, 284);
             this.textBox_Zaxis.Name = "textBox_Zaxis";
             this.textBox_Zaxis.Size = new System.Drawing.Size(47, 21);
             this.textBox_Zaxis.TabIndex = 29;
@@ -377,7 +381,7 @@
             // 
             // setWorkpiece
             // 
-            this.setWorkpiece.Location = new System.Drawing.Point(243, 263);
+            this.setWorkpiece.Location = new System.Drawing.Point(243, 268);
             this.setWorkpiece.Name = "setWorkpiece";
             this.setWorkpiece.Size = new System.Drawing.Size(57, 50);
             this.setWorkpiece.TabIndex = 31;
@@ -387,7 +391,7 @@
             // 
             // setCurrent
             // 
-            this.setCurrent.Location = new System.Drawing.Point(306, 263);
+            this.setCurrent.Location = new System.Drawing.Point(306, 268);
             this.setCurrent.Name = "setCurrent";
             this.setCurrent.Size = new System.Drawing.Size(52, 50);
             this.setCurrent.TabIndex = 32;
@@ -395,11 +399,50 @@
             this.setCurrent.UseVisualStyleBackColor = true;
             this.setCurrent.Click += new System.EventHandler(this.setCurrent_Click);
             // 
+            // textBox_Xspeed
+            // 
+            this.textBox_Xspeed.Location = new System.Drawing.Point(105, 129);
+            this.textBox_Xspeed.Name = "textBox_Xspeed";
+            this.textBox_Xspeed.Size = new System.Drawing.Size(70, 21);
+            this.textBox_Xspeed.TabIndex = 33;
+            this.textBox_Xspeed.Text = "10.0";
+
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(33, 132);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(29, 12);
+            this.label7.TabIndex = 34;
+            this.label7.Text = "X/Y:";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(223, 132);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(17, 12);
+            this.label8.TabIndex = 36;
+            this.label8.Text = "Z:";
+            // 
+            // textBox_Zspeed
+            // 
+            this.textBox_Zspeed.Location = new System.Drawing.Point(280, 129);
+            this.textBox_Zspeed.Name = "textBox_Zspeed";
+            this.textBox_Zspeed.Size = new System.Drawing.Size(70, 21);
+            this.textBox_Zspeed.TabIndex = 35;
+            this.textBox_Zspeed.Text = "5.0";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(701, 445);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.textBox_Zspeed);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.textBox_Xspeed);
             this.Controls.Add(this.setCurrent);
             this.Controls.Add(this.setWorkpiece);
             this.Controls.Add(this.label6);
@@ -479,6 +522,10 @@
         private System.Windows.Forms.TextBox textBox_Zaxis;
         private System.Windows.Forms.Button setWorkpiece;
         private System.Windows.Forms.Button setCurrent;
+        private System.Windows.Forms.TextBox textBox_Xspeed;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox textBox_Zspeed;
     }
 }
 
