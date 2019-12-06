@@ -42,6 +42,37 @@ namespace SMC_600Test
         double workpos_V = 0.0;
         double workpos_W = 0.0;
 
+
+        /// <summary>
+        /// /插补运动参数
+        /// </summary>
+        short ret; //返回错误码
+        ushort Myposi_mode = 1; //0:相对模式，1：绝对模式
+        ushort MyCrd = 0; //参与插补运动的坐标系
+        ushort[] AxisArray = new ushort[2]; //定义轴        
+        double MyMin_Vel = 0; //起始速度0
+        double MyMax_Vel = 15; //插补运动最大速度
+        double MyTacc = 0.2; //插补运动加速时间
+        double MyTdec = 0.1; //插补运动减速时间
+        double MyStop_Vel = 0; //插补运动停止速度
+        ushort MySmode = 0; //保留参数，固定值为0
+        double MySpara = 0.05; //平滑时间为0.05s
+        ushort MyaxisNum = 2; //插补运动轴数为2
+        double[] Dist = new double[2];
+
+        short MyCardNo = 0;//连接号
+        ushort enable =1; //是否启用Blend功能，0不使用，1使用
+        ushort dir =0; //圆弧方向，0：顺时针，1：逆时针
+        int cic=0; //圆弧圈数
+        double[] cen = new double[2];   //定义圆心坐标
+        int LookaheadSegment =200; //定义插补段数:200段
+        
+        double PathError=1; //定义轨迹误差：1unit
+        double LookaheadAcc=10000; //定义拐弯加速度:10000unit/s2
+        ushort ArcLimit=1; //使能圆弧限速，0：不使用，1使能
+
+
+
         public Form1()
         {
             InitializeComponent();
@@ -107,6 +138,7 @@ namespace SMC_600Test
         private void disconnect_Click(object sender, EventArgs e)
         {
             ushort CardNo = 0;
+            LTSMC.smc_conti_stop_list(_ConnectNo, 0, 0);
             short res = LTSMC.smc_board_close(CardNo);
             timer1.Stop();
             textBox1.Text = ("");
@@ -133,9 +165,11 @@ namespace SMC_600Test
         private void SB_Stop_Click(object sender, EventArgs e)
         {
             ushort CardNo = 0;          //卡号
-            ushort axis = 0;            //运动轴号u
             ushort mode = 0;     //停止模式，0；减速停止，1；紧急停止
-            LTSMC.smc_stop(CardNo, axis, mode);
+            LTSMC.smc_stop(CardNo, X_axis, mode);   //X轴停止运动
+            LTSMC.smc_stop(CardNo, Y_axis, mode);   //Y轴停止运动
+            LTSMC.smc_stop(CardNo, Z_axis, mode);   //Z轴停止运动
+            LTSMC.smc_conti_close_list(_ConnectNo, MyCrd);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -175,13 +209,18 @@ namespace SMC_600Test
             Y_speed = double.Parse(textBox_Xspeed.Text);
             Z_speed = double.Parse(textBox_Zspeed.Text);
 
-            ushort outmode_X = new ushort();
-            ushort outmode_Y = new ushort();
-            ushort outmode_Z = new ushort();
-            LTSMC.smc_get_pulse_outmode(_ConnectNo, Z_axis, ref outmode_X);
-            LTSMC.smc_get_pulse_outmode(_ConnectNo, Z_axis, ref outmode_Y);
-            LTSMC.smc_get_pulse_outmode(_ConnectNo, Z_axis, ref outmode_Z);
-            Console.WriteLine("x_" + outmode_Z + "; y_" + outmode_Y + "; z_" + outmode_Z);
+            /// <summary>
+            /// /读取轴脉冲状态
+            //ushort outmode_Y = new ushort();
+            //ushort outmode_Z = new ushort();
+            //LTSMC.smc_get_pulse_outmode(_ConnectNo, Z_axis, ref outmode_X);
+            //LTSMC.smc_get_pulse_outmode(_ConnectNo, Z_axis, ref outmode_Y);
+            //LTSMC.smc_get_pulse_outmode(_ConnectNo, Z_axis, ref outmode_Z);
+            //Console.WriteLine("x_" + outmode_Z + "; y_" + outmode_Y + "; z_" + outmode_Z);
+
+            long remain_space;
+            remain_space = LTSMC.smc_conti_remain_space(_ConnectNo, 0);
+            Console.WriteLine(remain_space);
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -434,7 +473,111 @@ namespace SMC_600Test
 
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            AxisArray[0] = 0; //定义插补0轴为X轴
+            AxisArray[1] = 1; //定义插补1轴为Y轴
+            Dist[0] = 0; //定义X轴运动距离
+            Dist[1] = 100; //Y轴运动距离
+            LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel); //第一步、设置插补运动速度参数
+            LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);    //第二步、设置插补运动平滑参数
+            LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
+        }
 
+        private void button2_Click(object sender, EventArgs e)
+        {
+            AxisArray[0] = 0; //定义插补0轴为X轴
+            AxisArray[1] = 1; //定义插补1轴为Y轴
+            Dist[0] = 100; //定义X轴运动距离
+            Dist[1] = 100; //Y轴运动距离
+            LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel); //第一步、设置插补运动速度参数
+            LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);    //第二步、设置插补运动平滑参数
+            LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            AxisArray[0] = 0; //定义插补0轴为X轴
+            AxisArray[1] = 1; //定义插补1轴为Y轴
+            Dist[0] = 100; //定义X轴运动距离
+            Dist[1] = 0; //Y轴运动距离
+            LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel); //第一步、设置插补运动速度参数
+            LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);    //第二步、设置插补运动平滑参数
+            LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            AxisArray[0] = 0; //定义插补0轴为X轴
+            AxisArray[1] = 1; //定义插补1轴为Y轴
+            cen[0] = 10000; //定义X轴圆心坐标
+            cen[1] = 0; //定义Y轴圆心坐标
+            Dist[0] = 120; //定义X轴运动终点
+            Dist[1] = 0; //定义Y轴运动终点
+            //第一步、设置插补运动速度参数、S时间参数
+            LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel);
+            LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);
+            //第二步、设置圆弧限速功能使能
+            LTSMC.smc_set_arc_limit(_ConnectNo, MyCrd, ArcLimit, 0, 0);
+            //第三步、设置前瞻参数
+            LTSMC.smc_conti_set_lookahead_mode(_ConnectNo, MyCrd, mode, LookaheadSegment, PathError, LookaheadAcc);
+            //第四步、打开连续插补
+            LTSMC.smc_conti_open_list(_ConnectNo, MyCrd, MyaxisNum, AxisArray);
+            //第五步、开始连续插补
+            LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
+            //第六步、添加直线插补段
+            LTSMC.smc_conti_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode, 0);
+            Dist[0] = 120; //定义X轴运动终点
+            Dist[1] = 100; //定义Y轴运动终点
+            LTSMC.smc_conti_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode, 0);
+            Dist[0] = 20; //定义X轴运动终点
+            Dist[1] = 0; //定义Y轴运动终点
+            LTSMC.smc_conti_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode, 0);
+            Dist[0] = 100; //定义X轴运动终点
+            Dist[1] = 200; //定义Y轴运动终点
+            LTSMC.smc_conti_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode, 0);
+            //第七步、添加圆弧插补段
+            // LTSMC.smc_conti_arc_move_center_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, cen, dir, cic, Myposi_mode, 0);
+            //第八步、关闭连续插补缓冲区
+            LTSMC.smc_conti_close_list(_ConnectNo, MyCrd);
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            AxisArray[0] = 0; //定义插补0轴为X轴
+            AxisArray[1] = 1; //定义插补1轴为Y轴
+            Dist[0] = 100; //定义X轴运动距离
+            Dist[1] = 80; //Y轴运动距离
+            LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel); //第一步、设置插补运动速度参数
+            LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);    //第二步、设置插补运动平滑参数
+            LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            AxisArray[0] = 0; //定义插补0轴为X轴
+            AxisArray[1] = 1; //定义插补1轴为Y轴
+            Dist[0] = 100; //定义X轴运动距离
+            Dist[1] = 100; //Y轴运动距离
+            LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
+            AxisArray[0] = 0; //定义插补0轴为X轴
+            AxisArray[1] = 1; //定义插补1轴为Y轴
+            Dist[0] = 200; //定义X轴运动距离
+            Dist[1] = 0; //Y轴运动距离
+            LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
+            AxisArray[0] = 0; //定义插补0轴为X轴
+            AxisArray[1] = 1; //定义插补1轴为Y轴
+            Dist[0] = 100; //定义X轴运动距离
+            Dist[1] = 150; //Y轴运动距离
+            LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
+            AxisArray[0] = 0; //定义插补0轴为X轴
+            AxisArray[1] = 1; //定义插补1轴为Y轴
+            Dist[0] = 0; //定义X轴运动距离
+            Dist[1] = 0; //Y轴运动距离
+            LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
+
+
+        }
     }
 
 }
