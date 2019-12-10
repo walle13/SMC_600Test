@@ -203,7 +203,20 @@ namespace SMC_600Test
             //
             textBox1.Text = sb.ToString();
             textBox2.Text = sbWork.ToString();
+
             // Console.WriteLine("456");
+            short EMGstatus = LTSMC.smc_read_inbit(_ConnectNo, 29);
+            // status.Text = EMGstatus;
+            if (EMGstatus == 1)
+            {
+                status.Text = ("EMG 急停触发");
+            }
+            else
+            {
+                status.Text = ("");
+            }
+
+           // Console.WriteLine("EMGstatus " + EMGstatus);
 
             X_speed = double.Parse(textBox_Xspeed.Text);
             Y_speed = double.Parse(textBox_Xspeed.Text);
@@ -578,6 +591,8 @@ namespace SMC_600Test
 
 
         }
+
+
     }
 
 }

@@ -74,6 +74,8 @@
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
+            this.status = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.performanceCounter1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -282,7 +284,7 @@
             // textBox3
             // 
             this.textBox3.BackColor = System.Drawing.SystemColors.Control;
-            this.textBox3.Location = new System.Drawing.Point(440, 195);
+            this.textBox3.Location = new System.Drawing.Point(440, 185);
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(262, 21);
             this.textBox3.TabIndex = 19;
@@ -302,21 +304,21 @@
             this.textBox4.Multiline = true;
             this.textBox4.Name = "textBox4";
             this.textBox4.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox4.Size = new System.Drawing.Size(262, 162);
+            this.textBox4.Size = new System.Drawing.Size(262, 152);
             this.textBox4.TabIndex = 21;
             // 
             // textBox5
             // 
-            this.textBox5.Location = new System.Drawing.Point(440, 222);
+            this.textBox5.Location = new System.Drawing.Point(440, 210);
             this.textBox5.Multiline = true;
             this.textBox5.Name = "textBox5";
             this.textBox5.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox5.Size = new System.Drawing.Size(262, 162);
+            this.textBox5.Size = new System.Drawing.Size(262, 137);
             this.textBox5.TabIndex = 22;
             // 
             // Send
             // 
-            this.Send.Location = new System.Drawing.Point(440, 392);
+            this.Send.Location = new System.Drawing.Point(440, 353);
             this.Send.Name = "Send";
             this.Send.Size = new System.Drawing.Size(75, 23);
             this.Send.TabIndex = 23;
@@ -326,7 +328,7 @@
             // 
             // ClearCode
             // 
-            this.ClearCode.Location = new System.Drawing.Point(627, 392);
+            this.ClearCode.Location = new System.Drawing.Point(627, 353);
             this.ClearCode.Name = "ClearCode";
             this.ClearCode.Size = new System.Drawing.Size(75, 23);
             this.ClearCode.TabIndex = 24;
@@ -499,11 +501,31 @@
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
+            // status
+            // 
+            this.status.BackColor = System.Drawing.SystemColors.Control;
+            this.status.Location = new System.Drawing.Point(508, 394);
+            this.status.Name = "status";
+            this.status.ReadOnly = true;
+            this.status.Size = new System.Drawing.Size(194, 21);
+            this.status.TabIndex = 43;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(449, 397);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(53, 12);
+            this.label9.TabIndex = 44;
+            this.label9.Text = "状态栏：";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(736, 445);
+            this.Controls.Add(this.label9);
+            this.Controls.Add(this.status);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
@@ -603,6 +625,8 @@
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.TextBox status;
+        private System.Windows.Forms.Label label9;
     }
 }
 
