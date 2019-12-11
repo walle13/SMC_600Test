@@ -205,7 +205,7 @@ namespace SMC_600Test
             textBox2.Text = sbWork.ToString();
 
             // Console.WriteLine("456");
-            short EMGstatus = LTSMC.smc_read_inbit(_ConnectNo, 29);
+            short EMGstatus = LTSMC.smc_read_inbit(_ConnectNo, 29);     //读取input IO 29口状态，判断EMG急停状态。
             // status.Text = EMGstatus;
             if (EMGstatus == 1)
             {
@@ -233,7 +233,7 @@ namespace SMC_600Test
 
             long remain_space;
             remain_space = LTSMC.smc_conti_remain_space(_ConnectNo, 0);
-            Console.WriteLine(remain_space);
+            //Console.WriteLine(remain_space);  //插补剩余行数
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -456,6 +456,8 @@ namespace SMC_600Test
             //Application.Run(new Form2());
         }
 
+
+
         private void Send_Click(object sender, EventArgs e)
         {
             string username = textBox5.Text;
@@ -464,7 +466,62 @@ namespace SMC_600Test
             this.textBox4.Focus();//获取焦点
             this.textBox4.Select(this.textBox4.TextLength, 0);//光标定位到文本最后
             this.textBox4.ScrollToCaret();//滚动到光标处
+
+
+            string gcode = textBox5.Text;    //Trim（）去除头尾空格,ToUpper()全部大写.StartsWith("G")判断首位是不是G
+            string[] gcodeList = gcode.Split('\r','\n');  //Split()，分隔字符串。通过“ ”截取数组。
+
+            Dictionary<string, int> gcodeParameter = new Dictionary<string, int>(); //创建一个字典。Dictionary提供快速的基于键值的元素查找。可以根据key得到value
+            if (gcodeList[0].Trim().ToUpper().StartsWith("G")) //*****这里后续应该写成直接提取G01 G101 这样的形式，从第一个字母开始，到下一个字母截止
+            {
+                Console.WriteLine("G");
+                textBox3.Text = "G";
+                
+                string [] subGcodes= gcodeList[0].Split(' ');  //Split()，分隔字符串。通过“ ”截取数组。
+                string gcodeNumber = subGcodes[0].Substring(1, subGcodes[0].Length - 1);    //Substring（），截取字符串。提取除关键“G”以外的数值。 
+                string gcodeCommand = gcodeNumber.TrimStart('0');   //保留指令的有效数值
+
+                for (int i = 1; i < subGcodes.Length; ++i)
+                {
+                    string GcodeKey = subGcodes[i].Substring(0, 1);  //提取GcodeKey ,即 Dictionary 的字典位置。
+                    int GcodeNumber = int.Parse(subGcodes[i].Substring(1, subGcodes[i].Length - 1));    //int.Parse 强制转化 int
+
+                    gcodeParameter.Add(GcodeKey, GcodeNumber);  //添加一组 集合
+                }
+
+                if (gcodeCommand == "1")  //判断有效数值，是否为“G01”指令
+                {
+                    textBox3.Text = "G01";
+                    Console.WriteLine("G");
+                    Console.WriteLine("{0},{1}", "X", gcodeParameter["X"]);
+                    Console.WriteLine("Key:{0},Value:{1}", "X", gcodeParameter["X"]);
+                    int masagek = gcodeParameter["X"];
+                    Console.WriteLine(masagek);
+                    vectorInit();   //插补初始化
+                    Dist[0] = gcodeParameter["X"]; 
+                    Dist[1] = gcodeParameter["Y"]; 
+                    vectorRun();    //插补运行
+
+                }
+                else if (gcodeCommand == "2")    //判断有效数值，是否为“G02”指令
+                {
+                    textBox3.Text = "G02";
+                }
+
+                                
+            }
+            else if(gcode.Trim().ToUpper().StartsWith("M"))
+            {
+                Console.WriteLine("M");
+                textBox3.Text = "M";
+            }
+
+
+
+            else
+            textBox3.Text = "";
             textBox5.Text = "";
+
         }
 
         private void ClearCode_Click(object sender, EventArgs e)
@@ -590,6 +647,36 @@ namespace SMC_600Test
             LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
 
 
+        }
+        private void vectorInit()
+        {
+            AxisArray[0] = 0; //定义插补0轴为X轴
+            AxisArray[1] = 1; //定义插补1轴为Y轴
+            cen[0] = 10000; //定义X轴圆心坐标
+            cen[1] = 0; //定义Y轴圆心坐标
+            //第一步、设置插补运动速度参数、S时间参数
+            LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel);
+            LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);
+            //第二步、设置圆弧限速功能使能
+            LTSMC.smc_set_arc_limit(_ConnectNo, MyCrd, ArcLimit, 0, 0);
+            //第三步、设置前瞻参数
+            LTSMC.smc_conti_set_lookahead_mode(_ConnectNo, MyCrd, mode, LookaheadSegment, PathError, LookaheadAcc);
+            //第四步、打开连续插补
+            LTSMC.smc_conti_open_list(_ConnectNo, MyCrd, MyaxisNum, AxisArray);
+            //第五步、开始连续插补
+            LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
+        }
+
+        private void vectorRun()
+        {
+            //Dist[0] = 120; //定义X轴运动终点
+            //Dist[1] = 100; //定义Y轴运动终点
+            //第五步、开始连续插补
+            LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
+            //第六步、添加直线插补段
+            LTSMC.smc_conti_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode, 0);          
+            //第八步、关闭连续插补缓冲区
+            LTSMC.smc_conti_close_list(_ConnectNo, MyCrd);
         }
 
 
