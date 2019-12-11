@@ -469,56 +469,58 @@ namespace SMC_600Test
 
 
             string gcode = textBox5.Text;    //Trim（）去除头尾空格,ToUpper()全部大写.StartsWith("G")判断首位是不是G
-            string[] gcodeList = gcode.Split('\r','\n');  //Split()，分隔字符串。通过“ ”截取数组。
+            string[] gcodeList = gcode.Split(new string[] { "\r\n" }, StringSplitOptions.None); //Split()，分隔字符串。通过“ ”截取数组。
 
-            Dictionary<string, int> gcodeParameter = new Dictionary<string, int>(); //创建一个字典。Dictionary提供快速的基于键值的元素查找。可以根据key得到value
-            if (gcodeList[0].Trim().ToUpper().StartsWith("G")) //*****这里后续应该写成直接提取G01 G101 这样的形式，从第一个字母开始，到下一个字母截止
+            for (int clist = 0; clist < gcodeList.Length; ++clist)
             {
-                Console.WriteLine("G");
-                textBox3.Text = "G";
-                
-                string [] subGcodes= gcodeList[0].Split(' ');  //Split()，分隔字符串。通过“ ”截取数组。
-                string gcodeNumber = subGcodes[0].Substring(1, subGcodes[0].Length - 1);    //Substring（），截取字符串。提取除关键“G”以外的数值。 
-                string gcodeCommand = gcodeNumber.TrimStart('0');   //保留指令的有效数值
-
-                for (int i = 1; i < subGcodes.Length; ++i)
+                Dictionary<string, int> gcodeParameter = new Dictionary<string, int>(); //创建一个字典。Dictionary提供快速的基于键值的元素查找。可以根据key得到value
+                if (gcodeList[clist].Trim().ToUpper().StartsWith("G")) //*****这里后续应该写成直接提取G01 G101 这样的形式，从第一个字母开始，到下一个字母截止
                 {
-                    string GcodeKey = subGcodes[i].Substring(0, 1);  //提取GcodeKey ,即 Dictionary 的字典位置。
-                    int GcodeNumber = int.Parse(subGcodes[i].Substring(1, subGcodes[i].Length - 1));    //int.Parse 强制转化 int
-
-                    gcodeParameter.Add(GcodeKey, GcodeNumber);  //添加一组 集合
-                }
-
-                if (gcodeCommand == "1")  //判断有效数值，是否为“G01”指令
-                {
-                    textBox3.Text = "G01";
                     Console.WriteLine("G");
-                    Console.WriteLine("{0},{1}", "X", gcodeParameter["X"]);
-                    Console.WriteLine("Key:{0},Value:{1}", "X", gcodeParameter["X"]);
-                    int masagek = gcodeParameter["X"];
-                    Console.WriteLine(masagek);
-                    vectorInit();   //插补初始化
-                    Dist[0] = gcodeParameter["X"]; 
-                    Dist[1] = gcodeParameter["Y"]; 
-                    vectorRun();    //插补运行
+                    textBox3.Text = "G";
+
+                    string[] subGcodes = gcodeList[clist].Split(' ');  //Split()，分隔字符串。通过“ ”截取数组。
+                    string gcodeNumber = subGcodes[0].Substring(1, subGcodes[0].Length - 1);    //Substring（），截取字符串。提取除关键“G”以外的数值。 
+                    string gcodeCommand = gcodeNumber.TrimStart('0');   //保留指令的有效数值
+
+                    for (int i = 1; i < subGcodes.Length; ++i)
+                    {
+                        string GcodeKey = subGcodes[i].Substring(0, 1);  //提取GcodeKey ,即 Dictionary 的字典位置。
+                        int GcodeNumber = int.Parse(subGcodes[i].Substring(1, subGcodes[i].Length - 1));    //int.Parse 强制转化 int
+
+                        gcodeParameter.Add(GcodeKey, GcodeNumber);  //添加一组 集合
+                    }
+
+                    if (gcodeCommand == "1")  //判断有效数值，是否为“G01”指令
+                    {
+                        textBox3.Text = "G01";
+                        Console.WriteLine("G");
+                        Console.WriteLine("{0},{1}", "X", gcodeParameter["X"]);
+                        Console.WriteLine("Key:{0},Value:{1}", "X", gcodeParameter["X"]);
+                        int masagek = gcodeParameter["X"];
+                        Console.WriteLine(masagek);
+                        vectorInit();   //插补初始化
+                        Dist[0] = gcodeParameter["X"];
+                        Dist[1] = gcodeParameter["Y"];
+                        vectorRun();    //插补运行
+
+                    }
+                    else if (gcodeCommand == "2")    //判断有效数值，是否为“G02”指令
+                    {
+                        textBox3.Text = "G02";
+                    }
+
 
                 }
-                else if (gcodeCommand == "2")    //判断有效数值，是否为“G02”指令
+                else if (gcode.Trim().ToUpper().StartsWith("M"))
                 {
-                    textBox3.Text = "G02";
+                    Console.WriteLine("M");
+                    textBox3.Text = "M";
                 }
+                
 
-                                
             }
-            else if(gcode.Trim().ToUpper().StartsWith("M"))
-            {
-                Console.WriteLine("M");
-                textBox3.Text = "M";
-            }
-
-
-
-            else
+            
             textBox3.Text = "";
             textBox5.Text = "";
 
