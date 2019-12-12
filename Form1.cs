@@ -49,7 +49,7 @@ namespace SMC_600Test
         short ret; //返回错误码
         ushort Myposi_mode = 1; //0:相对模式，1：绝对模式
         ushort MyCrd = 0; //参与插补运动的坐标系
-        ushort[] AxisArray = new ushort[2]; //定义轴        
+        ushort[] AxisArray = new ushort[3]; //定义轴        
         double MyMin_Vel = 0; //起始速度0
         double MyMax_Vel = 15; //插补运动最大速度
         double MyTacc = 0.2; //插补运动加速时间
@@ -57,14 +57,14 @@ namespace SMC_600Test
         double MyStop_Vel = 0; //插补运动停止速度
         ushort MySmode = 0; //保留参数，固定值为0
         double MySpara = 0.05; //平滑时间为0.05s
-        ushort MyaxisNum = 2; //插补运动轴数为2
-        double[] Dist = new double[2];
+        ushort MyaxisNum = 3; //插补运动轴数为3    ********坑爹啊，居然这里没有设置三轴
+        double[] Dist = new double[3];
 
         short MyCardNo = 0;//连接号
         ushort enable =1; //是否启用Blend功能，0不使用，1使用
         ushort dir =0; //圆弧方向，0：顺时针，1：逆时针
         int cic=0; //圆弧圈数
-        double[] cen = new double[2];   //定义圆心坐标
+        double[] cen = new double[3];   //定义圆心坐标
         int LookaheadSegment =200; //定义插补段数:200段
         
         double PathError=1; //定义轨迹误差：1unit
@@ -119,15 +119,15 @@ namespace SMC_600Test
 
             ushort outmode_Z = new ushort();
             LTSMC.smc_get_pulse_outmode(_ConnectNo, Z_axis, ref outmode_Z);
-            Console.WriteLine("x_" + outmode_Z);
+            Console.WriteLine("Z_" + outmode_Z);
 
             Console.WriteLine("abc");
             LTSMC.smc_set_axis_io_map(CardNo, X_axis, 3, 6, 29, 0);
             LTSMC.smc_set_axis_io_map(CardNo, Y_axis, 3, 6, 29, 0);
-            LTSMC.smc_set_axis_io_map(CardNo, Z_axis, 3, 6, 29, 0);
+         //   LTSMC.smc_set_axis_io_map(CardNo, Z_axis, 3, 6, 29, 0);
             LTSMC.smc_set_emg_mode(CardNo, X_axis, 1, 1);   //设置EMG使能，信号使能 1有效 ；0：低、1：高电平有效
             LTSMC.smc_set_emg_mode(CardNo, Y_axis, 1, 1);   //设置EMG使能，信号使能 1 ；0：低、1：高电平有效
-            LTSMC.smc_set_emg_mode(CardNo, Z_axis, 1, 1);   //设置EMG使能，信号使能 1 ；0：低、1：高电平有效
+           // LTSMC.smc_set_emg_mode(CardNo, Z_axis, 1, 1);   //设置EMG使能，信号使能 1 ；0：低、1：高电平有效
         }
 
         private void textBox_IP_TextChanged(object sender, EventArgs e)
@@ -469,39 +469,62 @@ namespace SMC_600Test
 
 
             string gcode = textBox5.Text;    //Trim（）去除头尾空格,ToUpper()全部大写.StartsWith("G")判断首位是不是G
-            string[] gcodeList = gcode.Split(new string[] { "\r\n" }, StringSplitOptions.None); //Split()，分隔字符串。通过“ ”截取数组。
+            string[] gcodeList = gcode.Split(new string[] { "\r\n" }, StringSplitOptions.None); //Split()，分隔字符串。通过“ ”截取数组，截取出单行指令。
 
+            Dictionary<string, double> gcodeParameter = new Dictionary<string, double>(); //创建一个字典。Dictionary提供快速的基于键值的元素查找。可以根据key得到value
             for (int clist = 0; clist < gcodeList.Length; ++clist)
             {
-                Dictionary<string, int> gcodeParameter = new Dictionary<string, int>(); //创建一个字典。Dictionary提供快速的基于键值的元素查找。可以根据key得到value
+                
                 if (gcodeList[clist].Trim().ToUpper().StartsWith("G")) //*****这里后续应该写成直接提取G01 G101 这样的形式，从第一个字母开始，到下一个字母截止
                 {
                     Console.WriteLine("G");
                     textBox3.Text = "G";
 
                     string[] subGcodes = gcodeList[clist].Split(' ');  //Split()，分隔字符串。通过“ ”截取数组。
-                    string gcodeNumber = subGcodes[0].Substring(1, subGcodes[0].Length - 1);    //Substring（），截取字符串。提取除关键“G”以外的数值。 
+                    string gcodeNumber = subGcodes[0].Substring(1, subGcodes[0].Length - 1);    //Substring（），截取首段字符串。提取除关键“G”以外的数值。 
                     string gcodeCommand = gcodeNumber.TrimStart('0');   //保留指令的有效数值
 
-                    for (int i = 1; i < subGcodes.Length; ++i)
+                    for (int i = 1; i < subGcodes.Length; ++i)  //提取单行指令的 单段数据。
                     {
                         string GcodeKey = subGcodes[i].Substring(0, 1);  //提取GcodeKey ,即 Dictionary 的字典位置。
-                        int GcodeNumber = int.Parse(subGcodes[i].Substring(1, subGcodes[i].Length - 1));    //int.Parse 强制转化 int
+                        if (GcodeKey != null)
+                        {
+                            double GcodeNumber = double.Parse(subGcodes[i].Substring(1, subGcodes[i].Length - 1));    //double.Parse 强制转化 double
 
-                        gcodeParameter.Add(GcodeKey, GcodeNumber);  //添加一组 集合
+                            if (gcodeParameter.ContainsKey(GcodeKey)==false)
+                            {
+                                //不存在，则添加
+                                gcodeParameter.Add(GcodeKey, GcodeNumber);  //添加一组 集合
+                                Console.WriteLine("新增_" + GcodeKey + gcodeParameter[GcodeKey]);
+                                Console.WriteLine( gcodeParameter[GcodeKey]);
+                            }
+                            else
+                            {
+                                gcodeParameter[GcodeKey]= GcodeNumber;  //添加一组 集合
+                                Console.WriteLine("修改_" + GcodeKey + gcodeParameter[GcodeKey]);
+                                Console.WriteLine( gcodeParameter[GcodeKey]);
+                                //如果指定的字典的键存在
+                                //gcodeParameter[GcodeKey] = GcodeNumber;
+                            }
+                        }
+
+
                     }
 
                     if (gcodeCommand == "1")  //判断有效数值，是否为“G01”指令
                     {
                         textBox3.Text = "G01";
                         Console.WriteLine("G");
-                        Console.WriteLine("{0},{1}", "X", gcodeParameter["X"]);
-                        Console.WriteLine("Key:{0},Value:{1}", "X", gcodeParameter["X"]);
-                        int masagek = gcodeParameter["X"];
+                       // Console.WriteLine("{0},{1}", "X", gcodeParameter["X"]);
+                       // Console.WriteLine("Key:{0},Value:{1}", "X", gcodeParameter["X"]);
+                        double masagek = gcodeParameter["X"];
                         Console.WriteLine(masagek);
-                        vectorInit();   //插补初始化
+                        
                         Dist[0] = gcodeParameter["X"];
                         Dist[1] = gcodeParameter["Y"];
+                        Dist[2] = gcodeParameter["Z"];
+                        MyMax_Vel = gcodeParameter["F"];
+                        vectorInit();   //插补初始化
                         vectorRun();    //插补运行
 
                     }
@@ -548,9 +571,9 @@ namespace SMC_600Test
         private void button1_Click(object sender, EventArgs e)
         {
             AxisArray[0] = 0; //定义插补0轴为X轴
-            AxisArray[1] = 1; //定义插补1轴为Y轴
-            Dist[0] = 0; //定义X轴运动距离
-            Dist[1] = 100; //Y轴运动距离
+            AxisArray[2] = 2; //定义插补1轴为Y轴
+            Dist[0] = 10; //定义X轴运动距离
+            Dist[2] = -20; //Y轴运动距离
             LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel); //第一步、设置插补运动速度参数
             LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);    //第二步、设置插补运动平滑参数
             LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
@@ -559,9 +582,9 @@ namespace SMC_600Test
         private void button2_Click(object sender, EventArgs e)
         {
             AxisArray[0] = 0; //定义插补0轴为X轴
-            AxisArray[1] = 1; //定义插补1轴为Y轴
+            AxisArray[2] = 2; //定义插补1轴为Y轴
             Dist[0] = 100; //定义X轴运动距离
-            Dist[1] = 100; //Y轴运动距离
+            Dist[2] = -10; //Y轴运动距离
             LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel); //第一步、设置插补运动速度参数
             LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);    //第二步、设置插补运动平滑参数
             LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
@@ -582,10 +605,12 @@ namespace SMC_600Test
         {
             AxisArray[0] = 0; //定义插补0轴为X轴
             AxisArray[1] = 1; //定义插补1轴为Y轴
+            AxisArray[2] = 2; //定义插补2轴为Z轴
             cen[0] = 10000; //定义X轴圆心坐标
             cen[1] = 0; //定义Y轴圆心坐标
-            Dist[0] = 120; //定义X轴运动终点
+            Dist[0] = 10; //定义X轴运动终点
             Dist[1] = 0; //定义Y轴运动终点
+            Dist[2] = -1.5; //定义Y轴运动终点
             //第一步、设置插补运动速度参数、S时间参数
             LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel);
             LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);
@@ -599,14 +624,17 @@ namespace SMC_600Test
             LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
             //第六步、添加直线插补段
             LTSMC.smc_conti_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode, 0);
-            Dist[0] = 120; //定义X轴运动终点
-            Dist[1] = 100; //定义Y轴运动终点
+            Dist[0] = 12; //定义X轴运动终点
+            Dist[1] = 10; //定义Y轴运动终点
+            Dist[2] = -10; //定义Y轴运动终点
             LTSMC.smc_conti_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode, 0);
             Dist[0] = 20; //定义X轴运动终点
             Dist[1] = 0; //定义Y轴运动终点
+            Dist[2] = -15; //定义Y轴运动终点
             LTSMC.smc_conti_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode, 0);
-            Dist[0] = 100; //定义X轴运动终点
-            Dist[1] = 200; //定义Y轴运动终点
+            Dist[0] = 10; //定义X轴运动终点
+            Dist[1] = 20; //定义Y轴运动终点
+            Dist[2] = 0; //定义Y轴运动终点
             LTSMC.smc_conti_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode, 0);
             //第七步、添加圆弧插补段
             // LTSMC.smc_conti_arc_move_center_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, cen, dir, cic, Myposi_mode, 0);
@@ -629,6 +657,7 @@ namespace SMC_600Test
         {
             AxisArray[0] = 0; //定义插补0轴为X轴
             AxisArray[1] = 1; //定义插补1轴为Y轴
+            AxisArray[2] = 2; //定义插补1轴为Y轴
             Dist[0] = 100; //定义X轴运动距离
             Dist[1] = 100; //Y轴运动距离
             LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
@@ -654,6 +683,7 @@ namespace SMC_600Test
         {
             AxisArray[0] = 0; //定义插补0轴为X轴
             AxisArray[1] = 1; //定义插补1轴为Y轴
+            AxisArray[2] = 2; //定义插补1轴为Y轴
             cen[0] = 10000; //定义X轴圆心坐标
             cen[1] = 0; //定义Y轴圆心坐标
             //第一步、设置插补运动速度参数、S时间参数
