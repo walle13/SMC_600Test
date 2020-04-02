@@ -35,9 +35,9 @@ namespace SMC_600Test
         double max_Zdist = 0;    //运动距离， 脉冲？
         double min_Zdist = -40;    //运动距离，
         ushort mode = 0;     //停止模式，0；减速停止，1；紧急停止
-        double workpos_X = 0.0;
-        double workpos_Y = 0.0;
-        double workpos_Z = 0.0;
+        double workpos_X = 100;
+        double workpos_Y = 70;
+        double workpos_Z = -32;
         double workpos_U = 0.0;
         double workpos_V = 0.0;
         double workpos_W = 0.0;
@@ -49,6 +49,7 @@ namespace SMC_600Test
         short ret; //返回错误码
         ushort Myposi_mode = 1; //0:相对模式，1：绝对模式
         ushort MyCrd = 0; //参与插补运动的坐标系
+        ushort MyCrd_Work = 1; //参与插补的工件坐标系
         ushort[] AxisArray = new ushort[3]; //定义轴        
         double MyMin_Vel = 0; //起始速度0
         double MyMax_Vel = 15; //插补运动最大速度
@@ -59,6 +60,8 @@ namespace SMC_600Test
         double MySpara = 0.05; //平滑时间为0.05s
         ushort MyaxisNum = 3; //插补运动轴数为3    ********坑爹啊，居然这里没有设置三轴
         double[] Dist = new double[3];
+        double[] DistWork = new double[3] { 100, 70, -32 };  //修正工件坐标
+        
 
         short MyCardNo = 0;//连接号
         ushort enable =1; //是否启用Blend功能，0不使用，1使用
@@ -116,6 +119,10 @@ namespace SMC_600Test
             LTSMC.smc_set_pulse_outmode(_ConnectNo, X_axis, 2);//设置脉冲模式; 0,PUL+ DIR+ ;2, PUL+ DIR- 高脉冲/低方向  
             LTSMC.smc_set_pulse_outmode(_ConnectNo, Y_axis, 2);//设置脉冲模式
             LTSMC.smc_set_pulse_outmode(_ConnectNo, Z_axis, 2);//设置脉冲模式
+
+            LTSMC.smc_set_softlimit_unit(_ConnectNo, X_axis, 0, 0, 1, -80, 80);  //设置X轴软限位 2020.4.2 添加;研究软限位与插补的冲突
+            LTSMC.smc_set_softlimit_unit(_ConnectNo, Y_axis, 0, 0, 1, -80, 80);  //设置Y轴软限位
+            LTSMC.smc_set_softlimit_unit(_ConnectNo, Y_axis, 0, 0, 1, 0, 30);  //设置Z轴软限位
 
             ushort outmode_Z = new ushort();
             LTSMC.smc_get_pulse_outmode(_ConnectNo, Z_axis, ref outmode_Z);
@@ -181,28 +188,28 @@ namespace SMC_600Test
             
             LTSMC.smc_get_position_unit(_ConnectNo, 0, ref pos);
             sb.AppendFormat("X={0},", pos);
-            sbWork.AppendFormat("X={0},", pos + workpos_X);
+            sbWork.AppendFormat("X={0},", pos - workpos_X);
             LTSMC.smc_get_position_unit(_ConnectNo, 1, ref pos);
             sb.AppendFormat("Y={0},", pos);
-            sbWork.AppendFormat("Y={0},", pos + workpos_Y);
+            sbWork.AppendFormat("Y={0},", pos - workpos_Y);
             LTSMC.smc_get_position_unit(_ConnectNo, 2, ref pos);
             sb.AppendFormat("Z={0},", pos);
-            sbWork.AppendFormat("Z={0},", pos + workpos_Z);
+            sbWork.AppendFormat("Z={0},", pos - workpos_Z);
             LTSMC.smc_get_position_unit(_ConnectNo, 3, ref pos);
             sb.AppendFormat("U={0},", pos);
-            sbWork.AppendFormat("U={0},", pos + workpos_U);
+            sbWork.AppendFormat("U={0},", pos - workpos_U);
             LTSMC.smc_get_position_unit(_ConnectNo, 4, ref pos);
             sb.AppendFormat("V={0},", pos);
-            sbWork.AppendFormat("V={0},", pos + workpos_V);
+            sbWork.AppendFormat("V={0},", pos - workpos_V);
             LTSMC.smc_get_position_unit(_ConnectNo, 5, ref pos);
             sb.AppendFormat("W={0},", pos);
-            sbWork.AppendFormat("W={0},", pos + workpos_W);
+            sbWork.AppendFormat("W={0},", pos - workpos_W);
             double speed = 0;
             LTSMC.smc_read_current_speed_unit(_ConnectNo, 0, ref speed);
             sb.AppendFormat("Speed={0},", speed);
             //
-            textBox1.Text = sb.ToString();
-            textBox2.Text = sbWork.ToString();
+            textBox1.Text = sb.ToString();  //textBox显示当前机械坐标
+            textBox2.Text = sbWork.ToString();  //textBox显示当前工件坐标
 
             // Console.WriteLine("456");
             short EMGstatus = LTSMC.smc_read_inbit(_ConnectNo, 29);     //读取input IO 29口状态，判断EMG急停状态。
@@ -513,16 +520,49 @@ namespace SMC_600Test
                     {
                         textBox3.Text = "G01";
                         Console.WriteLine("G");
-                       // Console.WriteLine("{0},{1}", "X", gcodeParameter["X"]);
-                       // Console.WriteLine("Key:{0},Value:{1}", "X", gcodeParameter["X"]);
-                        double masagek = gcodeParameter["X"];
-                        Console.WriteLine(masagek);
-                        
-                        Dist[0] = gcodeParameter["X"];
-                        Dist[1] = gcodeParameter["Y"];
-                        Dist[2] = gcodeParameter["Z"];
-                       // Dist[3] = gcodeParameter["U"];
-                        MyMax_Vel = gcodeParameter["F"];
+                        // Console.WriteLine("{0},{1}", "X", gcodeParameter["X"]);
+                        // Console.WriteLine("Key:{0},Value:{1}", "X", gcodeParameter["X"]);
+                        //double masagek = gcodeParameter["X"];
+                        //Console.WriteLine(masagek);
+
+                        if (gcodeParameter.ContainsKey("X"))    //判断指令中是否有"X" 的元素
+                        {
+                            Dist[0] = gcodeParameter["X"] + DistWork[0];    //添加工件坐标偏置
+                        }
+                        else
+                        {
+                            Dist[0] = Dist[0];
+                        }
+
+                        if (gcodeParameter.ContainsKey("Y"))    //判断指令中是否有"X" 的元素
+                        {
+                            Dist[1] = gcodeParameter["Y"] + DistWork[1];    //添加工件坐标偏置
+                        }
+                        else
+                        {
+                            Dist[1] = Dist[1];
+                        }
+
+                        if (gcodeParameter.ContainsKey("Z"))    //判断指令中是否有"X" 的元素
+                        {
+                            Dist[2] = gcodeParameter["Z"] + DistWork[2];    //添加工件坐标偏置
+                        }
+                        else
+                        {
+                            Dist[2] = Dist[20];
+                        }
+
+                        if (gcodeParameter.ContainsKey("F"))    //判断指令中是否有"X" 的元素
+                        {
+                            MyMax_Vel = gcodeParameter["F"]; ;    //添加工件坐标偏置
+                        }
+                        else
+                        {
+                            MyMax_Vel = MyMax_Vel;
+                        }
+
+                        // Dist[3] = gcodeParameter["U"];
+                        //MyMax_Vel = gcodeParameter["F"];
                         VectorInit();   //插补初始化
                         VectorLineRun();    //插补运行
 
@@ -535,7 +575,7 @@ namespace SMC_600Test
                         Dist[2] = gcodeParameter["Z"];
                         MyMax_Vel = gcodeParameter["F"];
                         VectorInit();   //插补初始化
-                        VectorRun();    //插补运行
+                        //VectorRun();    //插补运行
                     }
 
 
@@ -581,7 +621,7 @@ namespace SMC_600Test
                         // Console.WriteLine("Key:{0},Value:{1}", "X", gcodeParameter["X"]);
                         ushort IO_on = 0;
                         ushort IO_off = 1;
-
+                        VectorInit();   //插补初始化
                         LTSMC.smc_conti_delay_outbit_to_start(_ConnectNo, MyCrd, 1, IO_on, -0.0, 0, 0); //连续插补中相对于轨迹段起点IO滞后输出（段内执行)
                         //LTSMC.smc_write_outbit(_ConnectNo, 0, IO_on); //立刻操作IO
                        // LTSMC.smc_write_outbit(_ConnectNo, 1, IO_on); 
@@ -600,11 +640,11 @@ namespace SMC_600Test
                         textBox3.Text = "M103";
                         Console.WriteLine("M103");
                         ushort IO_on = 0;
-                        ushort IO_off = 1;       
-                        
+                        ushort IO_off = 1;
+                        VectorInit();   //插补初始化
                         //LTSMC.smc_write_outbit(_ConnectNo, 0, IO_off); /立刻操作IO
-                       // LTSMC.smc_write_outbit(_ConnectNo, 1, IO_off); /立刻操作IO
-                        LTSMC.smc_conti_write_outbit(_ConnectNo, MyCrd, 0, IO_off,0.0); //插补中立刻操作IO
+                        // LTSMC.smc_write_outbit(_ConnectNo, 1, IO_off); /立刻操作IO
+                        LTSMC.smc_conti_write_outbit(_ConnectNo, MyCrd, 0, IO_off, 0.0); //插补中立刻操作IO
                         LTSMC.smc_conti_delay_outbit_to_start(_ConnectNo, MyCrd, 1, IO_off, 0, 0, 0); //连续插补中相对于轨迹段起点IO滞后输出（段内执行)
                        // LTSMC.smc_conti_ahead_outbit_to_stop(_ConnectNo, MyCrd, 1, IO_off, 2.0, 0, 0);     //连续插补中相对于轨迹段终点IO提前输出（段内执行,···,但是是针对下一条指令，蛋疼！！！
                         //参数：ConnectNo 指定链接号：0 - 7,默认值0
@@ -661,12 +701,15 @@ namespace SMC_600Test
             LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
             */
             //****************临时征用来做IO实验**********************
-            ushort IO_on = 1;
-            ushort IO_off = 0;
-            short test;
-            test = LTSMC.smc_conti_write_outbit(_ConnectNo, 0, 1, IO_on, 10);
-            LTSMC.smc_write_outbit(_ConnectNo, 1, 0);
-            Console.WriteLine("button1_ ",test);
+            textBox3.Text = "M101";
+            Console.WriteLine("M101");
+            // Console.WriteLine("{0},{1}", "X", gcodeParameter["X"]);
+            // Console.WriteLine("Key:{0},Value:{1}", "X", gcodeParameter["X"]);
+            ushort IO_on = 0;
+            ushort IO_off = 1;
+            VectorInit();   //插补初始化
+            LTSMC.smc_conti_write_outbit(_ConnectNo, MyCrd, 0, IO_on, 0.0);    //插补中立刻操作IO
+            Console.WriteLine("button1_ 出丝");
             //  ConnectNo 指定链接号：0 - 7
             //  Crd 坐标系号，取值范围：0~1
             //  bitno 输出口号，取值范围：0~31
@@ -685,11 +728,15 @@ namespace SMC_600Test
             LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);    //第二步、设置插补运动平滑参数
             LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
             */
-            ushort IO_on = 1;
-            ushort IO_off = 0;
-            short test;
-            test = LTSMC.smc_conti_write_outbit(_ConnectNo, 0, 1, IO_off, 10);
-            Console.WriteLine("button2_ ",test);
+            textBox3.Text = "M103";
+            Console.WriteLine("M103");
+            // Console.WriteLine("{0},{1}", "X", gcodeParameter["X"]);
+            // Console.WriteLine("Key:{0},Value:{1}", "X", gcodeParameter["X"]);
+            ushort IO_on = 0;
+            ushort IO_off = 1;
+            VectorInit();   //插补初始化
+            LTSMC.smc_conti_write_outbit(_ConnectNo, MyCrd, 0, IO_off, 0.0);    //插补中立刻操作IO
+            Console.WriteLine("button1_ 关丝");
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -752,46 +799,40 @@ namespace SMC_600Test
             Dist[1] = 80; //Y轴运动距离
             LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel); //第一步、设置插补运动速度参数
             LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);    //第二步、设置插补运动平滑参数
-            LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
             AxisArray[0] = 0; //定义插补0轴为X轴
             AxisArray[1] = 1; //定义插补1轴为Y轴
-            AxisArray[2] = 2; //定义插补1轴为Y轴
-            Dist[0] = 10; //定义X轴运动距离
-            Dist[1] = 10; //Y轴运动距离
+
+            Dist[0] = 10 + DistWork[0]; //定义X轴运动距离
+            Dist[1] = 0 + DistWork[1];  //Y轴运动距离
             LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
-            AxisArray[0] = 0; //定义插补0轴为X轴
-            AxisArray[1] = 1; //定义插补1轴为Y轴
-            Dist[0] = 20; //定义X轴运动距离
-            Dist[1] = 0; //Y轴运动距离
+            
+            Dist[0] = 10 + DistWork[0]; //定义X轴运动距离
+            Dist[1] = 1 + DistWork[1];  //Y轴运动距离
             LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
 
-            ushort IO_on = 1;
-            ushort IO_off = 0;
-           // LTSMC.smc_conti_ahead_outbit_to_stop(_ConnectNo, MyCrd, 1, IO_on, 2.0, 0, 1);     //连续插补中相对于轨迹段终点IO提前输出（段内执行
-                                                                                              //参数：ConnectNo 指定链接号：0 - 7,默认值0
-                                                                                              //Crd 坐标系号，取值范围：0~1
-                                                                                              //bitno 输出口号，取值范围：0~31
-                                                                                              //on_off 电平状态，0：低电平，1：高电平
-                                                                                              //ahead_value 提前值，单位：s（提前时间模式）或unit（提前距离模式）
-                                                                                              //ahead_mode 提前模式，0：提前时间，1：提前距离
-                                                                                              //ReverseTime 电平输出后的延时翻转时间，单位：s     ***延时翻转，会对IO做一个短时间的翻转，然后再变化。
-            LTSMC.smc_conti_write_outbit(_ConnectNo, MyCrd, 2, IO_on,1) ;
-
-            AxisArray[0] = 0; //定义插补0轴为X轴
-            AxisArray[1] = 1; //定义插补1轴为Y轴
-            Dist[0] = 10; //定义X轴运动距离
-            Dist[1] = 15; //Y轴运动距离
+            Dist[0] = -10 + DistWork[0]; //定义X轴运动距离
+            Dist[1] = 1 + DistWork[1];  //Y轴运动距离
             LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
-            AxisArray[0] = 0; //定义插补0轴为X轴
-            AxisArray[1] = 1; //定义插补1轴为Y轴
-            Dist[0] = 0; //定义X轴运动距离
-            Dist[1] = 0; //Y轴运动距离
+           
+            Dist[0] = -10 + DistWork[0]; //定义X轴运动距离
+            Dist[1] = 2 + DistWork[1];  //Y轴运动距离
             LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
 
+            Dist[0] = 10 + DistWork[0]; //定义X轴运动距离
+            Dist[1] = 2 + DistWork[1];  //Y轴运动距离
+            LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
+
+            Dist[0] = 10 + DistWork[0]; //定义X轴运动距离
+            Dist[1] = 3 + DistWork[1];  //Y轴运动距离
+            LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
+
+            Dist[0] = -10 + DistWork[0]; //定义X轴运动距离
+            Dist[1] = 3 + DistWork[1];  //Y轴运动距离
+            LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
 
         }
         private void VectorInit()
@@ -801,6 +842,9 @@ namespace SMC_600Test
             AxisArray[2] = 2; //定义插补2轴为Z轴
             cen[0] = 20; //定义X轴圆心坐标
             cen[1] = 20; //定义Y轴圆心坐标
+
+            
+
             //第一步、设置插补运动速度参数、S时间参数
             LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel);
             LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);
@@ -811,7 +855,7 @@ namespace SMC_600Test
             //第四步、打开连续插补
             LTSMC.smc_conti_open_list(_ConnectNo, MyCrd, MyaxisNum, AxisArray);
             //第五步、开始连续插补
-            LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
+           // LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
         }
 
         private void VectorLineRun()
@@ -829,8 +873,8 @@ namespace SMC_600Test
         private void VectorArcRun()
         {
 
-            Dist[0] = 120; //定义X轴运动终点
-            Dist[1] = 100; //定义Y轴运动终点
+            //Dist[0] = 120; //定义X轴运动终点
+            //Dist[1] = 100; //定义Y轴运动终点
             //第五步、开始连续插补
             LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
             cen[0] = 20; //定义X轴圆心坐标
@@ -857,9 +901,25 @@ namespace SMC_600Test
         }
 
         private void IfVectorStop()
-        { 
-            
+        {
+
         }
+        private void Ifsoftlimit()
+        {
+            if (min_Xdist <= Dist[0] & Dist[0] <= max_Xdist)
+            {
+
+            }
+            else if (Dist[0] < min_Xdist)
+            {
+                Dist[0] = min_Xdist;
+            }
+            else
+            {
+                Dist[0] = max_Xdist;
+            }
+        }
+        
     }
 
 }

@@ -342,7 +342,7 @@
             this.textBox_Xaxis.Name = "textBox_Xaxis";
             this.textBox_Xaxis.Size = new System.Drawing.Size(47, 21);
             this.textBox_Xaxis.TabIndex = 25;
-            this.textBox_Xaxis.Text = "0.00";
+            this.textBox_Xaxis.Text = "100";
             // 
             // label4
             // 
@@ -368,7 +368,7 @@
             this.textBox_Yaxis.Name = "textBox_Yaxis";
             this.textBox_Yaxis.Size = new System.Drawing.Size(47, 21);
             this.textBox_Yaxis.TabIndex = 27;
-            this.textBox_Yaxis.Text = "0.00";
+            this.textBox_Yaxis.Text = "70";
             // 
             // label6
             // 
@@ -385,7 +385,7 @@
             this.textBox_Zaxis.Name = "textBox_Zaxis";
             this.textBox_Zaxis.Size = new System.Drawing.Size(47, 21);
             this.textBox_Zaxis.TabIndex = 29;
-            this.textBox_Zaxis.Text = "0.00";
+            this.textBox_Zaxis.Text = "-32";
             // 
             // setWorkpiece
             // 
@@ -447,7 +447,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(62, 50);
             this.button1.TabIndex = 37;
-            this.button1.Text = "button1";
+            this.button1.Text = "出丝";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -457,7 +457,7 @@
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(62, 50);
             this.button2.TabIndex = 38;
-            this.button2.Text = "button2";
+            this.button2.Text = "关丝";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
@@ -467,7 +467,7 @@
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(62, 50);
             this.button3.TabIndex = 39;
-            this.button3.Text = "button3";
+            this.button3.Text = "运行";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
@@ -570,7 +570,7 @@
             this.Controls.Add(this.SB_Stop);
             this.Controls.Add(this.SB_Star);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "SMC600运动调试软件";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.performanceCounter1)).EndInit();
             this.ResumeLayout(false);

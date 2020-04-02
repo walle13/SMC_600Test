@@ -45,7 +45,7 @@ smc_conti_write_outbit
 M101
 G01 X10.15 Y10.22 Z-1.5 F20
 G01 X9 Y10 Z-9 F20
-G01 X130 Y150 Z-15 F20
+G01 X130 Y100 Z-15 F20
 G01 X150 Y0 Z-5 F15
 M103
 G01 X0 Y0 Z0 F20
@@ -53,4 +53,25 @@ M101
 G01 X10.15 Y10.22 Z-1.5 F20
 G01 X9 Y10 Z-9 F20
 M103
+---
+	2020.04.1  添加的工件坐标模式，原有gcode需要切换成工件模式
+smc_set_homemode /smc_set_pulse_outmode 先需要通过原点模式+脉冲模式+固件参数，设置好设备的坐标系。
+先建好坐标系和方向。
+Dist[0] = gcodeParameter["X"] + DistWork[0];    //添加工件坐标偏置
+工件坐标系，直接在发送坐标然后再加偏置。不要改变方向。
+smc_set_softlimit_unit 再添加软限位
+M101
+G01 X-90.22 Y-90.22 Z1.5 F20
+G01 X-95 Y-95 F20
+G01 X30 Y0 Z15 F20
+G01 X50 Z5 F15
+M103
+G01 X-100 Y-100 Z0 F20
+M101
+G01 X-90.15 Y-90.22 Z1.5 F20
+G01 X-99 Y-99 Z9 F20
+M103
 
+---
+G01 X10 Y10 Z10 F10
+G01 Y22 Z13 F12		//暂时不知道为啥会跟软限位冲突
