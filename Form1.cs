@@ -478,6 +478,9 @@ namespace SMC_600Test
             string gcode = textBox5.Text;    //Trim（）去除头尾空格,ToUpper()全部大写.StartsWith("G")判断首位是不是G
             string[] gcodeList = gcode.Split(new string[] { "\r\n" }, StringSplitOptions.None); //Split()，分隔字符串。通过“ ”截取数组，截取出单行指令。
 
+
+            VectorInit();   //--------------------插补初始化---------------------------
+
             Dictionary<string, double> gcodeParameter = new Dictionary<string, double>(); //创建一个字典。Dictionary提供快速的基于键值的元素查找。可以根据key得到value
             for (int clist = 0; clist < gcodeList.Length; ++clist)
             {
@@ -563,7 +566,7 @@ namespace SMC_600Test
 
                         // Dist[3] = gcodeParameter["U"];
                         //MyMax_Vel = gcodeParameter["F"];
-                        VectorInit();   //插补初始化
+                        // VectorInit();   //插补初始化
                         VectorLineRun();    //插补运行
 
                     }
@@ -615,6 +618,8 @@ namespace SMC_600Test
                     }
                     if (gcodeCommand == "101")  //判断有效数值，是否为“G01”指令
                     {
+                        
+
                         textBox3.Text = "M101";
                         Console.WriteLine("M101");
                         // Console.WriteLine("{0},{1}", "X", gcodeParameter["X"]);
@@ -637,6 +642,7 @@ namespace SMC_600Test
                     }
                     else if (gcodeCommand == "103")    //判断有效数值，是否为“G02”指令
                     {
+                        
                         textBox3.Text = "M103";
                         Console.WriteLine("M103");
                         ushort IO_on = 0;
@@ -835,6 +841,7 @@ namespace SMC_600Test
             LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
 
         }
+        
         private void VectorInit()
         {
             AxisArray[0] = 0; //定义插补0轴为X轴
@@ -855,15 +862,18 @@ namespace SMC_600Test
             //第四步、打开连续插补
             LTSMC.smc_conti_open_list(_ConnectNo, MyCrd, MyaxisNum, AxisArray);
             //第五步、开始连续插补
-           // LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
+            LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
         }
 
         private void VectorLineRun()
         {
             //Dist[0] = 120; //定义X轴运动终点
             //Dist[1] = 100; //定义Y轴运动终点
+            //LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel);
+           // LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);
+
             //第五步、开始连续插补
-            LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
+            //LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
             //第六步、添加直线插补段
             LTSMC.smc_conti_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode, 0);          
             //第八步、关闭连续插补缓冲区
