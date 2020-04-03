@@ -35,6 +35,7 @@ namespace SMC_600Test
         double max_Zdist = 0;    //运动距离， 脉冲？
         double min_Zdist = -40;    //运动距离，
         ushort mode = 0;     //停止模式，0；减速停止，1；紧急停止
+        ushort lookaheadMode = 1;   // 插补模式：0 -非前瞻模式0 ; 1 -前瞻模式1 ;2 -非前瞻模式2
         double workpos_X = 100;
         double workpos_Y = 70;
         double workpos_Z = -32;
@@ -566,7 +567,7 @@ namespace SMC_600Test
 
                         // Dist[3] = gcodeParameter["U"];
                         //MyMax_Vel = gcodeParameter["F"];
-                        // VectorInit();   //插补初始化
+                        //VectorInit();   //插补初始化
                         VectorLineRun();    //插补运行
 
                     }
@@ -630,7 +631,7 @@ namespace SMC_600Test
                         LTSMC.smc_conti_delay_outbit_to_start(_ConnectNo, MyCrd, 1, IO_on, -0.0, 0, 0); //连续插补中相对于轨迹段起点IO滞后输出（段内执行)
                         //LTSMC.smc_write_outbit(_ConnectNo, 0, IO_on); //立刻操作IO
                        // LTSMC.smc_write_outbit(_ConnectNo, 1, IO_on); 
-                         LTSMC.smc_conti_write_outbit(_ConnectNo, MyCrd, 0, IO_on, 0.0);    //插补中立刻操作IO
+                        LTSMC.smc_conti_write_outbit(_ConnectNo, MyCrd, 0, IO_on, 0.0);    //插补中立刻操作IO
 
                         //参数：ConnectNo 指定链接号：0 - 7,默认值0
                         //Crd 坐标系号，取值范围：0~1
@@ -840,7 +841,7 @@ namespace SMC_600Test
             Dist[1] = 3 + DistWork[1];  //Y轴运动距离
             LTSMC.smc_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode);    //第三步、启动直线插补运动
 
-        }
+        }                       
         
         private void VectorInit()
         {
@@ -856,9 +857,15 @@ namespace SMC_600Test
             LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel);
             LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);
             //第二步、设置圆弧限速功能使能
-            LTSMC.smc_set_arc_limit(_ConnectNo, MyCrd, ArcLimit, 0, 0);
+          //  LTSMC.smc_set_arc_limit(_ConnectNo, MyCrd, ArcLimit, 0, 0);
             //第三步、设置前瞻参数
-            LTSMC.smc_conti_set_lookahead_mode(_ConnectNo, MyCrd, mode, LookaheadSegment, PathError, LookaheadAcc);
+            LTSMC.smc_conti_set_lookahead_mode(_ConnectNo, MyCrd, 1, LookaheadSegment, PathError, LookaheadAcc);
+            //ConnectNo 指定链接号：0 - 7,默认值0
+            //Crd 坐标系号，取值范围：0~1
+            //lookaheadMode 插补模式：0 - 非前瞻模式0，1 - 前瞻模式1，2 - 非前瞻模式2
+            //LookaheadSegment 前瞻段数，即每次运行时内部计算段数
+            //PathError 轨迹误差，单位：unit
+            //LookaheadAcc 拐弯加速度，单位unit / s^2
             //第四步、打开连续插补
             LTSMC.smc_conti_open_list(_ConnectNo, MyCrd, MyaxisNum, AxisArray);
             //第五步、开始连续插补
@@ -869,15 +876,15 @@ namespace SMC_600Test
         {
             //Dist[0] = 120; //定义X轴运动终点
             //Dist[1] = 100; //定义Y轴运动终点
-            //LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel);
-           // LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);
+            LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel);
+            //LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);
 
             //第五步、开始连续插补
-            //LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
+            LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
             //第六步、添加直线插补段
             LTSMC.smc_conti_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode, 0);          
             //第八步、关闭连续插补缓冲区
-           // LTSMC.smc_conti_close_list(_ConnectNo, MyCrd);
+            LTSMC.smc_conti_close_list(_ConnectNo, MyCrd);
         }
 
         private void VectorArcRun()
