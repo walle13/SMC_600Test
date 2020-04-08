@@ -76,6 +76,9 @@
             this.button6 = new System.Windows.Forms.Button();
             this.status = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
+            this.textBox6 = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.Pause = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.performanceCounter1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -519,11 +522,43 @@
             this.label9.TabIndex = 44;
             this.label9.Text = "状态栏：";
             // 
+            // textBox6
+            // 
+            this.textBox6.BackColor = System.Drawing.SystemColors.Control;
+            this.textBox6.Location = new System.Drawing.Point(196, 431);
+            this.textBox6.Name = "textBox6";
+            this.textBox6.ReadOnly = true;
+            this.textBox6.Size = new System.Drawing.Size(338, 21);
+            this.textBox6.TabIndex = 45;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(137, 434);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(53, 12);
+            this.label10.TabIndex = 46;
+            this.label10.Text = "插补状态";
+            this.label10.Click += new System.EventHandler(this.label10_Click);
+            // 
+            // Pause
+            // 
+            this.Pause.Location = new System.Drawing.Point(532, 353);
+            this.Pause.Name = "Pause";
+            this.Pause.Size = new System.Drawing.Size(75, 23);
+            this.Pause.TabIndex = 47;
+            this.Pause.Text = "暂停";
+            this.Pause.UseVisualStyleBackColor = true;
+            this.Pause.Click += new System.EventHandler(this.Pause_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(736, 445);
+            this.ClientSize = new System.Drawing.Size(789, 464);
+            this.Controls.Add(this.Pause);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.textBox6);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.status);
             this.Controls.Add(this.button6);
@@ -627,6 +662,9 @@
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.TextBox status;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox textBox6;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Button Pause;
     }
 }
 
