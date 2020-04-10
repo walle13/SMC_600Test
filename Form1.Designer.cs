@@ -152,8 +152,7 @@
             this.textBox_IP.Name = "textBox_IP";
             this.textBox_IP.Size = new System.Drawing.Size(161, 21);
             this.textBox_IP.TabIndex = 6;
-            this.textBox_IP.Text = "192.168.1.77";
-            this.textBox_IP.TextChanged += new System.EventHandler(this.textBox_IP_TextChanged);
+            this.textBox_IP.Text = "192.168.5.11";
             // 
             // X_axis_plus
             // 

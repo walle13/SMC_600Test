@@ -62,20 +62,18 @@ namespace SMC_600Test
         ushort MyaxisNum = 3; //插补运动轴数为3    ********坑爹啊，居然这里没有设置三轴
         double[] Dist = new double[3];
         double[] DistWork = new double[3] { 100, 70, -32 };  //修正工件坐标
-        
 
         short MyCardNo = 0;//连接号
-        ushort enable =1; //是否启用Blend功能，0不使用，1使用
+        ushort enable =1; //是否启用前瞻 Blend功能，0不使用，1使用
         ushort dir =0; //圆弧方向，0：顺时针，1：逆时针
         int cic=0; //圆弧圈数
         double[] cen = new double[3];   //定义圆心坐标
-
+        double Arc_Radius = 0;  //定义圆弧插补半径
         int LookaheadSegment =200; //定义插补段数:200段
-        double PathError=1; //定义轨迹误差：1unit
+        double PathError=0.1; //定义轨迹误差：1unit
         double LookaheadAcc=10000; //定义拐弯加速度:10000unit/s2
         ushort ArcLimit=1; //使能圆弧限速，0：不使用，1使能
-
-
+        private readonly object arcAxisArray;
 
         public Form1()
         {
@@ -138,11 +136,7 @@ namespace SMC_600Test
            // LTSMC.smc_set_emg_mode(CardNo, Z_axis, 1, 1);   //设置EMG使能，信号使能 1 ；0：低、1：高电平有效
         }
 
-        private void textBox_IP_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
+       
         private void disconnect_Click(object sender, EventArgs e)
         {
             ushort CardNo = 0;
@@ -597,12 +591,44 @@ namespace SMC_600Test
                     else if (gcodeCommand == "2")    //判断有效数值，是否为“G02”指令
                     {
                         textBox3.Text = "G02";
-                        Dist[0] = gcodeParameter["X"];
-                        Dist[1] = gcodeParameter["Y"];
-                        Dist[2] = gcodeParameter["Z"];
+                        Dist[0] = gcodeParameter["X"] + DistWork[0];    //添加工件坐标偏置
+                        Dist[1] = gcodeParameter["Y"] + DistWork[1];    //添加工件坐标偏置
+                        // Dist[2] = gcodeParameter["Z"];
                         MyMax_Vel = gcodeParameter["F"];
-                        VectorInit();   //插补初始化
+
+                        if (gcodeParameter.ContainsKey("R"))    //判断指令中是否有"X" 的元素
+                        {
+                            Arc_Radius = gcodeParameter["R"];    //添加工件坐标偏置
+                        }
+                        else
+                        {
+                            Arc_Radius = Arc_Radius;
+                        }
+
+                        dir = 0;    //顺时针方向
+                        VectorArcRun();     //圆弧插补运行
                         //VectorRun();    //插补运行
+                    }
+
+                    else if (gcodeCommand == "3")    //判断有效数值，是否为“G03”指令
+                    {
+                        textBox3.Text = "G03";
+                        Dist[0] = gcodeParameter["X"] + DistWork[0];    //添加工件坐标偏置
+                        Dist[1] = gcodeParameter["Y"] + DistWork[1];    //添加工件坐标偏置
+                        // Dist[2] = gcodeParameter["Z"];
+                        MyMax_Vel = gcodeParameter["F"];
+
+                        if (gcodeParameter.ContainsKey("R"))    //判断指令中是否有"X" 的元素
+                        {
+                            Arc_Radius = gcodeParameter["R"];    //添加工件坐标偏置
+                        }
+                        else
+                        {
+                            Arc_Radius = Arc_Radius;
+                        }
+                        dir = 1;    //逆时针方向
+                        //VectorRun();    //插补运行
+                        VectorArcRun();     //圆弧插补运行
                     }
 
 
@@ -893,7 +919,7 @@ namespace SMC_600Test
             //第二步、设置圆弧限速功能使能
             //  LTSMC.smc_set_arc_limit(_ConnectNo, MyCrd, ArcLimit, 0, 0);
             //第三步、设置前瞻参数
-            LTSMC.smc_conti_set_lookahead_mode(_ConnectNo, MyCrd, 1, LookaheadSegment, PathError, LookaheadAcc);
+            LTSMC.smc_conti_set_lookahead_mode(_ConnectNo, MyCrd, lookaheadMode, LookaheadSegment, PathError, LookaheadAcc);
             //ConnectNo 指定链接号：0 - 7,默认值0
             //Crd 坐标系号，取值范围：0~1
             //lookaheadMode 插补模式：0 - 非前瞻模式0，1 - 前瞻模式1，2 - 非前瞻模式2
@@ -911,10 +937,8 @@ namespace SMC_600Test
             //Dist[0] = 120; //定义X轴运动终点
             //Dist[1] = 100; //定义Y轴运动终点
             
-            //LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, MySmode, MySpara);
             LTSMC.smc_set_vector_speed_unit(_ConnectNo, MyCrd, MyMax_Vel);  //设置连续插补速度曲线
             LTSMC.smc_conti_line_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, Myposi_mode, 0);
-            //第五步、开始连续插补
             //第六步、添加直线插补段
                   
             //第八步、关闭连续插补缓冲区
@@ -927,26 +951,34 @@ namespace SMC_600Test
             //Dist[0] = 120; //定义X轴运动终点
             //Dist[1] = 100; //定义Y轴运动终点
             //第五步、开始连续插补
-            LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
-            cen[0] = 20; //定义X轴圆心坐标
-            cen[1] = 20; //定义Y轴圆心坐标
+             LTSMC.smc_conti_start_list(_ConnectNo, MyCrd);
             //-----------添加圆弧插补段------------
             //第六步_1、添加圆弧插补段 ,圆心+圆弧终点模式扩展的螺旋线插补运动（可作两轴圆弧插补）
-            LTSMC.smc_arc_move_center_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, cen, dir, Myposi_mode, 0);
-                    //参数：ConnectNo 指定链接号：0 - 7,默认值0
-                    //Crd 坐标系号，取值范围：0~1
-                    //AxisNum 运动轴数，取值范围：2~控制器最大轴数
-                    //AxisList 轴号列表
-                    //Target_Pos 目标位置数组，单位：unit
-                    //Cen_Pos 圆心位置数组，单位：unit
-                    //Arc_Dir 圆弧方向，0：顺时针，1：逆时针
-                    //Circle 圈数：负数：表示此时执行的为同心圆插补该值的绝对值加1表示同心圆的圈数。如，-1即表示2圈同心圆插补，-2表示3圈同心圆插补…
-                                    //自然数：表示此时执行的为螺旋线插补该值表示螺旋线的圈数。如，0即表示0圈螺旋线插补，1表示1圈螺旋线插补…
-                    //posi_mode 运动模式，0：相对坐标模式，1：绝对坐标模式
+            // LTSMC.smc_arc_move_center_unit(_ConnectNo, MyCrd, MyaxisNum, AxisArray, Dist, cen, dir, Myposi_mode, 0);
+            //LTSMC.smc_conti_arc_move_radius_unit(_ConnectNo, MyCrd, 2, AxisArray, Dist, Arc_Radius, dir, 1, 0);   //单段插补中的圆弧插补
+            ushort[] arcAxisArray=new ushort[2];
+            arcAxisArray[0] = 0; //定义插补0轴为X轴
+            arcAxisArray[1] = 1; //定义插补1轴为Y轴
+
+            LTSMC.smc_conti_arc_move_radius_unit(_ConnectNo, MyCrd, 2, arcAxisArray, Dist, Arc_Radius, dir, 0, Myposi_mode, 0);//连续插补中的圆弧插补
+            //参数：ConnectNo 指定链接号：0 - 7,默认值0
+            //Crd 坐标系号，取值范围：0~1
+            //AxisNum 运动轴数，取值范围：2~控制器最大轴数
+            //AxisList 轴号列表
+            //Target_Pos 目标位置数组，单位：unit
+            //Cen_Pos 圆心位置数组，单位：unit
+
+
+
+            //Arc_Dir 圆弧方向，0：顺时针，1：逆时针
+            //Circle 圈数：负数：表示此时执行的为同心圆插补该值的绝对值加1表示同心圆的圈数。如，-1即表示2圈同心圆插补，-2表示3圈同心圆插补…
+            //自然数：表示此时执行的为螺旋线插补该值表示螺旋线的圈数。如，0即表示0圈螺旋线插补，1表示1圈螺旋线插补…
+            //posi_mode 运动模式，0：相对坐标模式，1：绝对坐标模式
+
             //第六步_2、添加圆弧插补段 ,圆心+圆弧终点模式扩展的螺旋线插补运动（可作两轴圆弧插补）
-                //LTSMC.smc_arc_move_radius_unit()
+            //LTSMC.smc_arc_move_radius_unit()
             //第六步_3、添加圆弧插补段 ,圆心+圆弧终点模式扩展的螺旋线插补运动（可作两轴圆弧插补）
-                //LTSMC.smc_arc_move_3points_unit()
+            //LTSMC.smc_arc_move_3points_unit()
             //第八步、关闭连续插补缓冲区
             // LTSMC.smc_conti_close_list(_ConnectNo, MyCrd);
         }
