@@ -20,10 +20,12 @@ namespace SMC_600Test
         ushort X_axis = 0;            //运动轴号x
         ushort Y_axis = 1;            //运动轴号y
         ushort Z_axis = 2;            //运动轴号z
-        double start_speed =2;        //初始速度 
-        double X_speed ;        //最大运行速度
-        double Y_speed ;        //最大运行速度
-        double Z_speed ;        //最大运行速度
+        ushort U_axis = 3;            //运动轴号A
+        double start_speed = 2;        //初始速度 
+        double X_speed;        //最大运行速度
+        double Y_speed;        //最大运行速度
+        double Z_speed;        //最大运行速度
+        double U_speed;        //最大运行速度
         double stop_speed = 0;      //停止速度
         double tacc = 0.1;          //加速时间
         double tdec = 0.1;      //减速时间
@@ -34,6 +36,9 @@ namespace SMC_600Test
         double min_Ydist = 0;    //运动距离，
         double max_Zdist = 0;    //运动距离， 脉冲？
         double min_Zdist = -40;    //运动距离，
+        double max_Udist = 4000;    //运动距离， 脉冲？
+        double min_Udist = -4000;    //运动距离，
+
         ushort mode = 0;     //停止模式，0；减速停止，1；紧急停止
         ushort lookaheadMode = 1;   // 插补模式：0 -非前瞻模式0 ; 1 -前瞻模式1 ;2 -非前瞻模式2
         double workpos_X = 100;
@@ -64,16 +69,18 @@ namespace SMC_600Test
         double[] DistWork = new double[3] { 100, 70, -32 };  //修正工件坐标
 
         short MyCardNo = 0;//连接号
-        ushort enable =1; //是否启用前瞻 Blend功能，0不使用，1使用
-        ushort dir =0; //圆弧方向，0：顺时针，1：逆时针
-        int cic=0; //圆弧圈数
+        ushort enable = 1; //是否启用前瞻 Blend功能，0不使用，1使用
+        ushort dir = 0; //圆弧方向，0：顺时针，1：逆时针
+        int cic = 0; //圆弧圈数
         double[] cen = new double[3];   //定义圆心坐标
         double Arc_Radius = 0;  //定义圆弧插补半径
-        int LookaheadSegment =200; //定义插补段数:200段
-        double PathError=0.1; //定义轨迹误差：1unit
-        double LookaheadAcc=10000; //定义拐弯加速度:10000unit/s2
-        ushort ArcLimit=1; //使能圆弧限速，0：不使用，1使能
+        int LookaheadSegment = 200; //定义插补段数:200段
+        double PathError = 0.1; //定义轨迹误差：1unit
+        double LookaheadAcc = 10000; //定义拐弯加速度:10000unit/s2
+        ushort ArcLimit = 1; //使能圆弧限速，0：不使用，1使能
         private readonly object arcAxisArray;
+        double[] MachineControlSystem= new double[4] { 0, 0, 0,0 }; //定义一个记录参数 上次目标机械坐标的  X Y Z U V W
+
 
         public Form1()
         {
@@ -128,11 +135,11 @@ namespace SMC_600Test
             Console.WriteLine("Z_" + outmode_Z);
 
             Console.WriteLine("abc");
-            LTSMC.smc_set_axis_io_map(CardNo, X_axis, 3, 6, 29, 0);
-            LTSMC.smc_set_axis_io_map(CardNo, Y_axis, 3, 6, 29, 0);
-         //   LTSMC.smc_set_axis_io_map(CardNo, Z_axis, 3, 6, 29, 0);
+            LTSMC.smc_set_axis_io_map(CardNo, X_axis, 3, 6, 0, 0);  
+            LTSMC.smc_set_axis_io_map(CardNo, Y_axis, 3, 6, 0, 0);
+         //   LTSMC.smc_set_axis_io_map(CardNo, Z_axis, 3, 6, 0, 0);
             LTSMC.smc_set_emg_mode(CardNo, X_axis, 1, 1);   //设置EMG使能，信号使能 1有效 ；0：低、1：高电平有效
-            LTSMC.smc_set_emg_mode(CardNo, Y_axis, 1, 1);   //设置EMG使能，信号使能 1 ；0：低、1：高电平有效
+            LTSMC.smc_set_emg_mode(CardNo, Y_axis, 1, 1);   //设置EMG使能，信号使能 1有效 ；0：低、1：高电平有效
            // LTSMC.smc_set_emg_mode(CardNo, Z_axis, 1, 1);   //设置EMG使能，信号使能 1 ；0：低、1：高电平有效
         }
 
@@ -230,7 +237,7 @@ namespace SMC_600Test
             textBox6.Text = strrunstate;    //显示插补状态
 
             // Console.WriteLine("456");
-            short EMGstatus = LTSMC.smc_read_inbit(_ConnectNo, 29);     //读取input IO 29口状态，判断EMG急停状态。
+            short EMGstatus = LTSMC.smc_read_inbit(_ConnectNo, 0);     //读取input IO 0口状态，判断EMG急停状态。
             // status.Text = EMGstatus;
             if (EMGstatus == 1)
             {
@@ -301,7 +308,7 @@ namespace SMC_600Test
             LTSMC.smc_pmove_unit(CardNo, X_axis, max_Xdist, 0);    //启动定长运动
             Console.WriteLine("123"); //
         }
-
+                                               
         private void SB_Star_MouseUp(object sender, MouseEventArgs e)
         {
             ushort CardNo = 0;          //卡号
@@ -394,6 +401,12 @@ namespace SMC_600Test
         private void Z_axis_sub_MouseUp(object sender, MouseEventArgs e)
         {
             
+            LTSMC.smc_stop(CardNo, Z_axis, mode);  //轴停止运动 （卡号， 运动轴号 ， 停止模式：0；减速停止，1；紧急停止）
+        }
+
+        private void U_axis_sub_MouseUp(object sender, MouseEventArgs e)
+        {
+
             LTSMC.smc_stop(CardNo, Z_axis, mode);  //轴停止运动 （卡号， 运动轴号 ， 停止模式：0；减速停止，1；紧急停止）
         }
 
@@ -499,6 +512,7 @@ namespace SMC_600Test
             VectorInit();   //--------------------插补初始化---------------------------
 
             Dictionary<string, double> gcodeParameter = new Dictionary<string, double>(); //创建一个字典。Dictionary提供快速的基于键值的元素查找。可以根据key得到value
+            
             for (int clist = 0; clist < gcodeList.Length; ++clist)
             {
                 
@@ -524,6 +538,7 @@ namespace SMC_600Test
                                 gcodeParameter.Add(GcodeKey, GcodeNumber);  //添加一组 集合
                                 Console.WriteLine("新增_" + GcodeKey + gcodeParameter[GcodeKey]);
                                 Console.WriteLine( gcodeParameter[GcodeKey]);
+                                
                             }
                             else
                             {
@@ -572,6 +587,80 @@ namespace SMC_600Test
                             Dist[2] = Dist[2];
 
                         }
+
+                        if (gcodeParameter.ContainsKey("U"))    //判断指令中是否有"X" 的元素
+                        {
+                            Dist[3] = gcodeParameter["U"] + DistWork[3];    //添加工件坐标偏置
+                        }
+                        else
+                        {
+                            Dist[3] = Dist[3];
+
+                        }
+
+
+                        int directionVector_U = 1;
+                        if (gcodeParameter.ContainsKey("U"))
+                        {
+                            Dist[3] = gcodeParameter["U"] * directionVector_U;
+                            int temp = 0;
+                            if (MachineControlSystem[3] < 0)
+                            {
+                                temp = (int)(MachineControlSystem[3]/ (360 * directionVector_U)) - 1;
+                                if (temp < -1)
+                                {
+                                    temp = -1;
+                                }
+                            }
+                            else
+                            {
+                                temp = (int)(MachineControlSystem[3]/ (360 * directionVector_U));
+                                if (temp > 1)
+                                {
+                                    temp = 1;
+                                }
+                            }//不知道这段在算什么，先放弃
+
+                            double axis_A_Distancediff = MachineControlSystem[3]- temp * 360 * directionVector_U;  //360
+                            if (Math.Abs(axis_A_Distancediff - Dist[3]) == 180 * directionVector_U)   //目标刚好是180°
+                            {
+
+                                Dist[3] = MachineControlSystem[3]+ 180 * gcodeParameter["U"];
+                            }
+                            else if (axis_A_Distancediff == Dist[3]) //判断是相同，不做处理
+                            {
+
+                                Dist[3] = MachineControlSystem[3];
+                            }
+                            else if (Dist[3] - axis_A_Distancediff < 0 && Dist[3] - axis_A_Distancediff < -180 * directionVector_U) //判断是否是  -180<**＜0 
+                            {
+
+                                Dist[3] += 360 * directionVector_U * (temp + 1);
+                            }
+                            else if (Dist[3] - axis_A_Distancediff < 0 && Dist[3] - axis_A_Distancediff > -180 * directionVector_U) ////判断是否是  -180<**＜0 
+                            {
+
+                                Dist[3] += 360 * directionVector_U * temp;
+                            }
+                            else if (Dist[3] - axis_A_Distancediff > 0 && Dist[3] - axis_A_Distancediff > 180 * directionVector_U) ////判断是否是  -180<**＜0 
+                            {
+
+                                Dist[3] += 360 * directionVector_U * (temp - 1);
+                            }
+                            else if (Dist[3] - axis_A_Distancediff > 0 && Dist[3] - axis_A_Distancediff < 180 * directionVector_U) ////判断是否是  -180<**＜0 
+                            {
+
+                                Dist[3] += 360 * directionVector_U * temp;
+                            }
+                            else
+                            {
+                                Dist[3] = MachineControlSystem[3];
+                            }
+                            MachineControlSystem[3] = Dist[3];
+
+                        }
+                        
+
 
                         if (gcodeParameter.ContainsKey("F"))    //判断指令中是否有"X" 的元素
                         {
