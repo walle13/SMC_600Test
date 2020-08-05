@@ -89,25 +89,25 @@ namespace MachineControlSystem.Gcode.TypeB
                     {
                         temp = 1;
                     }
-                }//不知道这段在算什么，先放弃
+                }//不知道这段在算什么，为啥temp 只有了 1 -1 0
 
-                double axis_A_Distancediff = MachineControlSystem.LastDistance.U - temp * 360 * directionVector.U;
+                double axis_A_Distancediff = MachineControlSystem.LastDistance.U - temp * 360 * directionVector.U;  //换算为整圈绝对位置
                 if (Math.Abs(axis_A_Distancediff - destinaPosition.U) == 180 * directionVector.U)   //目标刚好是180°
                 {
 
-                    destinaPosition.U = MachineControlSystem.LastDistance.U + 180 * gcodeParameter["U"];
+                    destinaPosition.U = MachineControlSystem.LastDistance.U + 180 * directionVector.U; 
                 }   
-                else if (axis_A_Distancediff == destinaPosition.U) //判断是相同，不做处理
+                else if (axis_A_Distancediff == destinaPosition.U) //判断是
                 {
                     
                     destinaPosition.U = MachineControlSystem.LastDistance.U;
                 }
-                else if (destinaPosition.U - axis_A_Distancediff < 0 && destinaPosition.U - axis_A_Distancediff < -180 * directionVector.U) //判断是否是  -180<**＜0 
+                else if (destinaPosition.U - axis_A_Distancediff < 0 && destinaPosition.U - axis_A_Distancediff < -180 * directionVector.U) // 目标值变小 & *差值*＜180
                 {
 
                     destinaPosition.U += 360 * directionVector.U * (temp + 1);
                 }
-                else if (destinaPosition.U - axis_A_Distancediff < 0 && destinaPosition.U - axis_A_Distancediff > -180 * directionVector.U) ////判断是否是  -180<**＜0 
+                else if (destinaPosition.U - axis_A_Distancediff < 0 && destinaPosition.U - axis_A_Distancediff > -180 * directionVector.U) // 目标值变小 & *差值*大于180 
                 {
 
                     destinaPosition.U += 360 * directionVector.U * temp;

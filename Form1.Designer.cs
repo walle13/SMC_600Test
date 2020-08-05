@@ -79,6 +79,8 @@
             this.textBox6 = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.Pause = new System.Windows.Forms.Button();
+            this.U_axis_plus = new System.Windows.Forms.Button();
+            this.U_axis_sub = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.performanceCounter1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -158,7 +160,7 @@
             // 
             this.X_axis_plus.Location = new System.Drawing.Point(12, 156);
             this.X_axis_plus.Name = "X_axis_plus";
-            this.X_axis_plus.Size = new System.Drawing.Size(70, 50);
+            this.X_axis_plus.Size = new System.Drawing.Size(59, 50);
             this.X_axis_plus.TabIndex = 7;
             this.X_axis_plus.Text = "X+";
             this.X_axis_plus.UseVisualStyleBackColor = true;
@@ -167,9 +169,9 @@
             // 
             // Y_axis_plus
             // 
-            this.Y_axis_plus.Location = new System.Drawing.Point(105, 156);
+            this.Y_axis_plus.Location = new System.Drawing.Point(77, 156);
             this.Y_axis_plus.Name = "Y_axis_plus";
-            this.Y_axis_plus.Size = new System.Drawing.Size(70, 50);
+            this.Y_axis_plus.Size = new System.Drawing.Size(66, 50);
             this.Y_axis_plus.TabIndex = 8;
             this.Y_axis_plus.Text = "Y+";
             this.Y_axis_plus.UseVisualStyleBackColor = true;
@@ -178,9 +180,9 @@
             // 
             // Z_axis_plus
             // 
-            this.Z_axis_plus.Location = new System.Drawing.Point(196, 156);
+            this.Z_axis_plus.Location = new System.Drawing.Point(149, 156);
             this.Z_axis_plus.Name = "Z_axis_plus";
-            this.Z_axis_plus.Size = new System.Drawing.Size(70, 50);
+            this.Z_axis_plus.Size = new System.Drawing.Size(60, 50);
             this.Z_axis_plus.TabIndex = 9;
             this.Z_axis_plus.Text = "Z+";
             this.Z_axis_plus.UseVisualStyleBackColor = true;
@@ -191,7 +193,7 @@
             // 
             this.X_axis_sub.Location = new System.Drawing.Point(12, 212);
             this.X_axis_sub.Name = "X_axis_sub";
-            this.X_axis_sub.Size = new System.Drawing.Size(70, 50);
+            this.X_axis_sub.Size = new System.Drawing.Size(59, 50);
             this.X_axis_sub.TabIndex = 10;
             this.X_axis_sub.Text = "X-";
             this.X_axis_sub.UseVisualStyleBackColor = true;
@@ -200,9 +202,9 @@
             // 
             // Y_axis_sub
             // 
-            this.Y_axis_sub.Location = new System.Drawing.Point(105, 212);
+            this.Y_axis_sub.Location = new System.Drawing.Point(77, 212);
             this.Y_axis_sub.Name = "Y_axis_sub";
-            this.Y_axis_sub.Size = new System.Drawing.Size(70, 50);
+            this.Y_axis_sub.Size = new System.Drawing.Size(65, 50);
             this.Y_axis_sub.TabIndex = 11;
             this.Y_axis_sub.Text = "Y-";
             this.Y_axis_sub.UseVisualStyleBackColor = true;
@@ -211,9 +213,9 @@
             // 
             // Z_axis_sub
             // 
-            this.Z_axis_sub.Location = new System.Drawing.Point(196, 212);
+            this.Z_axis_sub.Location = new System.Drawing.Point(148, 212);
             this.Z_axis_sub.Name = "Z_axis_sub";
-            this.Z_axis_sub.Size = new System.Drawing.Size(70, 50);
+            this.Z_axis_sub.Size = new System.Drawing.Size(61, 50);
             this.Z_axis_sub.TabIndex = 12;
             this.Z_axis_sub.Text = "Z-";
             this.Z_axis_sub.UseVisualStyleBackColor = true;
@@ -538,7 +540,6 @@
             this.label10.Size = new System.Drawing.Size(53, 12);
             this.label10.TabIndex = 46;
             this.label10.Text = "插补状态";
-            this.label10.Click += new System.EventHandler(this.label10_Click);
             // 
             // Pause
             // 
@@ -549,6 +550,28 @@
             this.Pause.Text = "暂停";
             this.Pause.UseVisualStyleBackColor = true;
             this.Pause.Click += new System.EventHandler(this.Pause_Click);
+            // 
+            // U_axis_plus
+            // 
+            this.U_axis_plus.Location = new System.Drawing.Point(215, 156);
+            this.U_axis_plus.Name = "U_axis_plus";
+            this.U_axis_plus.Size = new System.Drawing.Size(59, 50);
+            this.U_axis_plus.TabIndex = 9;
+            this.U_axis_plus.Text = "U+";
+            this.U_axis_plus.UseVisualStyleBackColor = true;
+            this.U_axis_plus.MouseDown += new System.Windows.Forms.MouseEventHandler(this.U_axis_plus_MouseDown);
+            this.U_axis_plus.MouseUp += new System.Windows.Forms.MouseEventHandler(this.U_axis_plus_MouseUp);
+            // 
+            // U_axis_sub
+            // 
+            this.U_axis_sub.Location = new System.Drawing.Point(215, 212);
+            this.U_axis_sub.Name = "U_axis_sub";
+            this.U_axis_sub.Size = new System.Drawing.Size(59, 50);
+            this.U_axis_sub.TabIndex = 9;
+            this.U_axis_sub.Text = "U-";
+            this.U_axis_sub.UseVisualStyleBackColor = true;
+            this.U_axis_sub.MouseDown += new System.Windows.Forms.MouseEventHandler(this.U_axis_sub_MouseDown);
+            this.U_axis_sub.MouseUp += new System.Windows.Forms.MouseEventHandler(this.U_axis_plus_MouseUp);
             // 
             // Form1
             // 
@@ -593,6 +616,8 @@
             this.Controls.Add(this.Z_axis_sub);
             this.Controls.Add(this.Y_axis_sub);
             this.Controls.Add(this.X_axis_sub);
+            this.Controls.Add(this.U_axis_sub);
+            this.Controls.Add(this.U_axis_plus);
             this.Controls.Add(this.Z_axis_plus);
             this.Controls.Add(this.Y_axis_plus);
             this.Controls.Add(this.X_axis_plus);
@@ -664,6 +689,8 @@
         private System.Windows.Forms.TextBox textBox6;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Button Pause;
+        public System.Windows.Forms.Button U_axis_plus;
+        public System.Windows.Forms.Button U_axis_sub;
     }
 }
 

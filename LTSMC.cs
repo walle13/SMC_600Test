@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace Leadshine.SMC.IDE.Motion
+namespace Leadshine
 {
-    public static class LTSMC
+    public partial class LTSMC
     {
         /*********************************************************************************************************
        功能函数 
@@ -78,9 +78,6 @@ namespace Leadshine.SMC.IDE.Motion
         public static extern short smc_set_backlash_unit(ushort ConnectNo, ushort axis, double backlash);
         [DllImport("LTSMC.dll")]
         public static extern short smc_get_backlash_unit(ushort ConnectNo, ushort axis, ref double backlash);
-
-
-
         //编码器		
         [DllImport("LTSMC.dll")]
         public static extern short smc_set_counter_inmode(ushort ConnectNo, ushort axis, ushort mode);	//设定编码器的计数方式
@@ -98,8 +95,11 @@ namespace Leadshine.SMC.IDE.Motion
         public static extern short smc_set_counter_reverse(ushort ConnectNo, ushort axis, ushort reverse);
         [DllImport("LTSMC.dll")]
         public static extern short smc_get_counter_reverse(ushort ConnectNo, ushort axis, ref ushort reverse);
-
-
+        //辅助编码器
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_set_extra_encoder(ushort ConnectNo, ushort axis, int pos);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_get_extra_encoder(ushort ConnectNo, ushort axis, ref int pos);
         //单轴速度参数
         [DllImport("LTSMC.dll")]
         public static extern short smc_set_profile_unit(ushort ConnectNo, ushort axis, double Min_Vel, double Max_Vel, double Tacc, double Tdec, double Stop_Vel);
@@ -116,7 +116,11 @@ namespace Leadshine.SMC.IDE.Motion
         public static extern short smc_vmove(ushort ConnectNo, ushort axis, ushort dir);	//指定轴做连续运动
         [DllImport("LTSMC.dll")]
         public static extern short smc_change_speed(ushort ConnectNo, ushort axis, double Curr_Vel, double Taccdec);	//在线改变指定轴的当前运动速度
-
+        //正弦曲线定长运动
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_sine_oscillate_unit(ushort ConnectNo,ushort axis,double Amplitude,double Frequency);//正弦曲线定长运动
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_sine_oscillate_stop(ushort ConnectNo,ushort axis);//正弦曲线停止，停止在中心位置
         //回零运动	
         [DllImport("LTSMC.dll")]
         public static extern short smc_set_home_pin_logic(ushort ConnectNo, ushort axis, ushort org_logic, double filter); 	//设置HOME信号
@@ -142,6 +146,21 @@ namespace Leadshine.SMC.IDE.Motion
         public static extern short smc_set_home_position_unit(ushort ConnectNo, ushort axis, ushort enable, double position);
         [DllImport("LTSMC.dll")]
         public static extern short smc_get_home_position_unit(ushort ConnectNo, ushort axis, ref ushort enable, ref double position);
+        //手轮运动(旧)
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_set_handwheel_channel(ushort CardNo, ushort index);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_get_handwheel_channel(ushort CardNo, ref ushort index);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_set_handwheel_inmode(ushort CardNo, ushort axis, ushort inmode, int multi, double vh);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_get_handwheel_inmode(ushort CardNo, ushort axis, ref ushort inmode, ref int multi, ref double vh);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_set_handwheel_inmode_extern(ushort CardNo, ushort inmode, ushort AxisNum, ushort[] AxisList, int[] multi);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_get_handwheel_inmode_extern(ushort CardNo, ref ushort inmode, ref ushort AxisNum, ushort[] AxisList, int[] multi);
+        //[DllImport("LTSMC.dll")]
+        //public static extern short smc_handwheel_move(ushort CardNo, ushort axis);
         //手轮运动
         [DllImport("LTSMC.dll")]
         public static extern short smc_handwheel_set_axislist(ushort ConnectNo, ushort AxisSelIndex, ushort AxisNum, ushort[] AxisList);
@@ -227,6 +246,21 @@ namespace Leadshine.SMC.IDE.Motion
         public static extern short smc_ltc_get_number(ushort ConnectNo, ushort latch, ushort axis, ref int number);
         [DllImport("LTSMC.dll")]
         public static extern short smc_ltc_get_value_unit(ushort ConnectNo, ushort latch, ushort axis, ref double value);
+        //软锁存
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_softltc_set_mode(ushort ConnectNo, ushort latch, ushort ltc_enable, ushort ltc_mode, ushort ltc_inbit, ushort ltc_logic, double filter);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_softltc_get_mode(ushort ConnectNo, ushort latch, ref ushort ltc_enable, ref ushort ltc_mode, ref ushort ltc_inbit, ref ushort ltc_logic, ref double filter);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_softltc_set_source(ushort ConnectNo, ushort latch, ushort axis, ushort ltc_source);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_softltc_get_source(ushort ConnectNo, ushort latch, ushort axis, ref ushort ltc_source);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_softltc_reset(ushort ConnectNo, ushort latch);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_softltc_get_number(ushort ConnectNo, ushort latch, ushort axis, ref int number);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_softltc_get_value_unit(ushort ConnectNo, ushort latch, ushort axis, ref double value);
         //PVT运动
         [DllImport("LTSMC.dll")]
         public static extern short smc_pvt_table_unit(ushort ConnectNo, ushort iaxis, uint count, double[] pTime, double[] pPos, double[] pVel);
@@ -319,9 +353,9 @@ namespace Leadshine.SMC.IDE.Motion
         [DllImport("LTSMC.dll")]
         public static extern short smc_set_dec_stop_time(ushort ConnectNo, ushort axis, double time);
         [DllImport("LTSMC.dll")]
-        public static extern short smc_get_dec_stop_time(ushort ConnectNo, ushort axis, ref double time);        
+        public static extern short smc_get_dec_stop_time(ushort ConnectNo, ushort axis, ref double time);
         [DllImport("LTSMC.dll")]
-        public static extern short smc_set_io_pwmoutput(ushort ConnectNo, ushort outbit, double fre, double duty, uint counts);//设置IO输出一定脉冲个数的PWM波形曲线
+        public static extern short smc_set_io_pwmoutput(ushort ConnectNo, ushort outbit, double time1, double time2, uint counts);//设置IO输出一定脉冲个数的PWM波形曲线
         [DllImport("LTSMC.dll")]
         public static extern short smc_clear_io_pwmoutput(ushort ConnectNo, ushort outbit);//清除IO输出PWM波形曲线
         //专用IO操作
@@ -474,15 +508,17 @@ namespace Leadshine.SMC.IDE.Motion
         public static extern short smc_conti_set_involute_mode(ushort ConnectNo, ushort Crd, ushort mode);
         [DllImport("LTSMC.dll")]
         public static extern short smc_conti_get_involute_mode(ushort ConnectNo, ushort Crd, ref ushort mode);
+        //二维位置比较提前输出，读取相对于起点的距离
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_get_distance_to_start(ushort ConnectNo,ushort Crd,ref double distance_x,ref double distance_y,int imark);
+        //二维位置比较提前输出，设置标志位，表示是否开始计算相对起点
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_set_start_distance_flag(ushort ConnectNo, ushort Crd, ushort flag);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_get_start_distance_flag(ushort ConnectNo, ushort Crd, ref ushort flag);
         //连续插补PWM
         [DllImport("LTSMC.dll")]
         public static extern short smc_conti_set_pwm_output(ushort ConnectNo, ushort Crd, ushort PwmNo, double fDuty, double fFre);
-        /**********PWM速度跟随**************
-        mode:跟随模式0-不跟随 保持状态 1-不跟随 输出低电平2-不跟随 输出高电平3-跟随 占空比自动调整4-跟随 频率自动调整
-        MaxVel:最大运行速度，单位unit
-        MaxValue:最大输出占空比或者频率
-        OutValue：设置输出频率或占空比
-        *************************************/
         [DllImport("LTSMC.dll")]
         public static extern short smc_conti_set_pwm_follow_speed(ushort ConnectNo, ushort Crd, ushort pwm_no, ushort mode, double MaxVel, double MaxValue, double OutValue);
         [DllImport("LTSMC.dll")]
@@ -525,6 +561,8 @@ namespace Leadshine.SMC.IDE.Motion
         public static extern short smc_compare_get_points_runned(ushort ConnectNo, ushort axis, ref int pointNum); 	//查询已经比较过的点
         [DllImport("LTSMC.dll")]
         public static extern short smc_compare_get_points_remained(ushort ConnectNo, ushort axis, ref int pointNum); 	//查询可以加入的比较点数量
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_compare_add_point_cycle(ushort CardNo, ushort cmp, int pos, ushort dir, uint bitno, uint cycle, ushort level);
 
         //二维位置比较
         [DllImport("LTSMC.dll")]
@@ -565,6 +603,28 @@ namespace Leadshine.SMC.IDE.Motion
         public static extern short smc_read_cmp_pin(ushort ConnectNo, ushort hcmp);
         [DllImport("LTSMC.dll")]
         public static extern short smc_write_cmp_pin(ushort ConnectNo, ushort hcmp, ushort on_off);
+        //高速二维位置比较
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_hcmp_2d_set_enable(ushort ConnectNo, ushort hcmp, ushort cmp_enable);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_hcmp_2d_get_enable(ushort ConnectNo, ushort hcmp, ref ushort cmp_enable);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_hcmp_2d_set_config_unit(ushort ConnectNo, ushort hcmp, ushort cmp_mode, ushort x_axis, ushort x_cmp_source, double x_cmp_error, ushort y_axis, ushort y_cmp_source, double y_cmp_error, ushort cmp_logic, int time);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_hcmp_2d_get_config_unit(ushort ConnectNo, ushort hcmp, ref ushort cmp_mode, ref ushort x_axis, ref ushort x_cmp_source, ref double x_cmp_error, ref ushort y_axis, ref ushort y_cmp_source, ref double y_cmp_error, ref ushort cmp_logic, ref int time);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_hcmp_2d_set_pwmoutput(ushort ConnectNo, ushort hcmp, ushort pwm_enable, double duty, double freq, ushort pwm_number);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_hcmp_2d_get_pwmoutput(ushort ConnectNo, ushort hcmp, ref ushort pwm_enable, ref double duty, ref double freq, ref ushort pwm_number);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_hcmp_2d_add_point_unit(ushort ConnectNo, ushort hcmp, double x_cmp_pos, double y_cmp_pos, ushort cmp_outbit);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_hcmp_2d_get_current_state(ushort ConnectNo, ushort hcmp, ref int remained_points, ref double x_current_point, ref double y_current_point, ref int runned_points, ref ushort current_state, ref ushort current_outbit);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_hcmp_2d_clear_points(ushort ConnectNo, ushort hcmp);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_hcmp_2d_force_output(ushort ConnectNo, ushort hcmp, ushort outbit);
+
         //模拟量操作
         //AD
         [DllImport("LTSMC.dll")]
@@ -684,16 +744,24 @@ namespace Leadshine.SMC.IDE.Motion
         public static extern short smc_gcode_check_file(ushort CardNo, byte[] pfilenameinControl, ref byte pbIfExist, ref uint pFileSize);
         [DllImport("LTSMC.dll")]
         public static extern short smc_gcode_get_file_profile(ushort CardNo, ref uint maxfilenum, ref uint maxfilesize);
-
-        //public static extern short smc_gcode_set_step_state();
-
-
+        /******************************************
+        U盘文件管理
+        ***************************************/
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_udisk_get_state(ushort ConnectNo, ref ushort state);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_udisk_check_file(ushort ConnectNo, byte[] filename, ref int filesize, ushort filetype);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_udisk_get_first_file(ushort ConnectNo, byte[] filename, ref int filesize, ref int fileid, ushort filetype);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_udisk_get_next_file(ushort ConnectNo, byte[] filename, ref int filesize, ref int fileid, ushort filetype);
+        [DllImport("LTSMC.dll")]
+        public static extern short smc_udisk_copy_file(ushort ConnectNo, string SrcFileName, string DstFileName, ushort filetype, ushort mode);
         //当前位置
         [DllImport("LTSMC.dll")]
         public static extern short smc_set_encoder_unit(ushort ConnectNo, ushort axis, double pos);
         [DllImport("LTSMC.dll")]
         public static extern short smc_get_encoder_unit(ushort ConnectNo, ushort axis, ref double pos);
-
         //变速变位
         [DllImport("LTSMC.dll")]
         public static extern short smc_reset_target_position_unit(ushort ConnectNo, ushort axis, double New_Pos);
@@ -753,11 +821,7 @@ namespace Leadshine.SMC.IDE.Motion
         [DllImport("LTSMC.dll")]
         public static extern short nmcs_get_slave_nodes(ushort ConnectNo, ushort PortNum, ushort baudrate, ushort[] NodeID, ref ushort NodeNum);
         [DllImport("LTSMC.dll")]
-        public static extern short nmcs_clear_errcode(ushort CardNo, ushort axis);
-        [DllImport("LTSMC.dll")]
         public static extern short nmcs_get_EmergeneyMessege_Nodes(ushort CardNo, ushort PortNum, uint[] NodeMsg, ref ushort MsgNum);
-        [DllImport("LTSMC.dll")]
-        public static extern short nmcs_get_errcode(ushort CardNo, ushort PortNum, ref ushort errcode);
         [DllImport("LTSMC.dll")]
         public static extern short nmcs_get_LostHeartbeat_Nodes(ushort CardNo, ushort PortNum, ushort[] NodeID, ref ushort NodeNum);
         [DllImport("LTSMC.dll")]
@@ -800,9 +864,9 @@ namespace Leadshine.SMC.IDE.Motion
         [DllImport("LTSMC.dll")]
         public static extern short nmcs_get_controller_workmode(ushort ConnectNo, ref ushort controller_mode);
         [DllImport("LTSMC.dll")]
-        public static extern short nmcs_set_cycletime(ushort ConnectNo, ushort FieldbusType, int CycleTime);
+        public static extern short nmcs_set_cycletime(ushort ConnectNo, ushort FieldbusType, uint CycleTime);
         [DllImport("LTSMC.dll")]
-        public static extern short nmcs_get_cycletime(ushort ConnectNo, ushort FieldbusType, ref int CycleTime);
+        public static extern short nmcs_get_cycletime(ushort ConnectNo, ushort FieldbusType, ref uint CycleTime);
 
         [DllImport("LTSMC.dll")]
         public static extern short nmcs_get_axis_state_machine(ushort ConnectNo, ushort axis, ref ushort Axis_StateMachine);
@@ -835,6 +899,58 @@ namespace Leadshine.SMC.IDE.Motion
         public static extern short nmcs_get_home_profile(ushort ConnectNo, ushort axis, ref ushort home_mode, ref double High_Vel, ref double Low_Vel, ref double Tacc, ref double Tdec, ref double offsetpos);
         [DllImport("LTSMC.dll")]
         public static extern short nmcs_home_move(ushort ConnectNo, ushort axis);
+        //
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_get_errcode(ushort CardNo, ushort channel, ref ushort errcode);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_clear_errcode(ushort CardNo, ushort channel);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_get_axis_errcode(ushort CardNo, ushort axis, ref ushort Errcode);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_clear_axis_errcode(ushort CardNo, ushort axis);
+        //
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_write_rxpdo_extra(ushort ConnectNo, ushort PortNum, ushort address, ushort DataLen, uint Value);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_read_rxpdo_extra(ushort ConnectNo, ushort PortNum, ushort address, ushort DataLen, ref uint Value);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_read_txpdo_extra(ushort ConnectNo, ushort PortNum, ushort address, ushort DataLen, ref uint Value);
+        //
+        //RTEX
+        //
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_start_connect(ushort ConnectNo, ushort chan, ushort[] info, ref ushort len);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_get_vendor_info(ushort ConnectNo, ushort axis, byte[] info, ref ushort len);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_get_slave_type_info(ushort ConnectNo, ushort axis, byte[] info, ref ushort len);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_get_slave_name_info(ushort ConnectNo, ushort axis, byte[] info, ref ushort len);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_get_slave_version_info(ushort ConnectNo, ushort axis, byte[] info, ref ushort len);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_write_parameter(ushort ConnectNo, ushort axis, ushort index, ushort subindex, uint para_data);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_write_slave_eeprom(ushort ConnectNo, ushort axis);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_read_parameter(ushort ConnectNo, ushort axis, ushort index, ushort subindex, ref uint para_data);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_read_parameter_attributes(ushort ConnectNo, ushort axis, ushort index, ushort subindex, ref uint para_data);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_set_cmdcycletime(ushort ConnectNo, ushort PortNum, uint cmdtime);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_get_cmdcycletime(ushort ConnectNo, ushort PortNum, ref uint cmdtime);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_start_log(ushort ConnectNo, ushort chan, ushort node, ushort Ifenable);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_get_log(ushort ConnectNo, ushort chan, ushort node, uint[] data);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_config_atuo_log(ushort ConnectNo, ushort ifenable, ushort dir, ushort byte_index, ushort mask, ushort condition, uint counter);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_get_log_state(ushort ConnectNo, ushort chan, ref uint state);
+        [DllImport("LTSMC.dll")]
+        public static extern short nmcs_driver_reset(ushort ConnectNo, ushort axis);
+
 
 
     }

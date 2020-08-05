@@ -1,7 +1,6 @@
 D:\Code\10. MotionController\SMC_600Test\SMC_600Test\bin\Debug\SMC_600Test.exe.config
 D:\Code\10. MotionController\SMC_600Test\SMC_600Test\bin\Debug\SMC_600Test.exe
 D:\Code\10. MotionController\SMC_600Test\SMC_600Test\bin\Debug\SMC_600Test.pdb
-D:\Code\10. MotionController\SMC_600Test\SMC_600Test\obj\Debug\SMC_600Test.csprojAssemblyReference.cache
 D:\Code\10. MotionController\SMC_600Test\SMC_600Test\obj\Debug\SMC_600Test.Properties.Resources.resources
 D:\Code\10. MotionController\SMC_600Test\SMC_600Test\obj\Debug\SMC_600Test.csproj.GenerateResource.cache
 D:\Code\10. MotionController\SMC_600Test\SMC_600Test\obj\Debug\SMC_600Test.csproj.CoreCompileInputs.cache
@@ -9,3 +8,4 @@ D:\Code\10. MotionController\SMC_600Test\SMC_600Test\obj\Debug\SMC_600Test.exe
 D:\Code\10. MotionController\SMC_600Test\SMC_600Test\obj\Debug\SMC_600Test.pdb
 D:\Code\10. MotionController\SMC_600Test\SMC_600Test\obj\Debug\SMC_600Test.Form1.resources
 D:\Code\10. MotionController\SMC_600Test\SMC_600Test\obj\Debug\SMC_600Test.Form2.resources
+D:\Code\10. MotionController\SMC_600Test\SMC_600Test\obj\Debug\SMC_600Test.csprojAssemblyReference.cache
