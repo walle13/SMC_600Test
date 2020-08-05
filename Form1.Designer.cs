@@ -372,7 +372,7 @@
             this.textBox_Yaxis.Name = "textBox_Yaxis";
             this.textBox_Yaxis.Size = new System.Drawing.Size(47, 21);
             this.textBox_Yaxis.TabIndex = 27;
-            this.textBox_Yaxis.Text = "70";
+            this.textBox_Yaxis.Text = "100";
             // 
             // label6
             // 

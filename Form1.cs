@@ -21,11 +21,13 @@ namespace SMC_600Test
         ushort Y_axis = 1;            //运动轴号y
         ushort Z_axis = 2;            //运动轴号z
         ushort U_axis = 3;            //运动轴号A
+        ushort V_axis = 4;            //运动轴号B
         double start_speed = 2;        //初始速度 
         double X_speed;        //最大运行速度
         double Y_speed;        //最大运行速度
         double Z_speed;        //最大运行速度
         double U_speed;        //最大运行速度
+        double V_speed;        //最大运行速度
         double stop_speed = 0;      //停止速度
         double tacc = 0.1;          //加速时间
         double tdec = 0.1;      //减速时间
@@ -38,16 +40,18 @@ namespace SMC_600Test
         double min_Zdist = -40;    //运动距离，
         double max_Udist = 4000;    //运动距离， 脉冲？
         double min_Udist = -4000;    //运动距离，
+        double max_Vdist = 4000;    //运动距离， 脉冲？
+        double min_Vdist = -4000;    //运动距离，
 
         ushort mode = 0;     //停止模式，0；减速停止，1；紧急停止
         ushort lookaheadMode = 1;   // 插补模式：0 -非前瞻模式0 ; 1 -前瞻模式1 ;2 -非前瞻模式2
         double workpos_X = 100;
-        double workpos_Y = 70;
+        double workpos_Y = 100;
         double workpos_Z = -32;
         double workpos_U = 0.0;
         double workpos_V = 0.0;
         double workpos_W = 0.0;
-
+        double pos = 0.0;
 
         /// <summary>
         /// /插补运动参数
@@ -56,10 +60,10 @@ namespace SMC_600Test
         ushort Myposi_mode = 1; //0:相对模式，1：绝对模式
         ushort MyCrd = 0; //参与插补运动的坐标系
         ushort MyCrd_Work = 1; //参与插补的工件坐标系
-        ushort[] AxisArray = new ushort[4]; //定义轴  
-        ushort MyaxisNum = 4; //插补运动轴数为3    ********坑爹啊，居然这里没有设置三轴
-        double[] Dist = new double[4];
-        double[] DistWork = new double[4] { 100, 70, -32, 0 };  //修正工件坐标
+        ushort[] AxisArray = new ushort[5]; //定义轴  
+        ushort MyaxisNum = 5; //插补运动轴数为3    ********坑爹啊，居然这里没有设置三轴
+        double[] Dist = new double[5];
+        double[] DistWork = new double[5] { 100, 100, -32, 0 ,0};  //修正工件坐标
         double MyMin_Vel = 0; //起始速度0
         double MyMax_Vel = 15; //插补运动最大速度
         double MyTacc = 0.2; //插补运动加速时间
@@ -79,9 +83,9 @@ namespace SMC_600Test
         double LookaheadAcc = 10000; //定义拐弯加速度:10000unit/s2
         ushort ArcLimit = 1; //使能圆弧限速，0：不使用，1使能
         private readonly object arcAxisArray;
-        double[] MachineControlSystem= new double[4] { 0, 0, 0,0 }; //定义一个记录参数 上次目标机械坐标的  X Y Z U V W
-        int directionVector_A = -1;  //定义坐标系方向
-        int directionVector_B = -1;  //定义坐标系方向
+        double[] MachineControlSystem= new double[5] { 0, 0, 0,0,0 }; //定义一个记录参数 上次目标机械坐标的  X Y Z U V W
+        int directionVector_A = 1;  //定义坐标系方向
+        int directionVector_B = 1;  //定义坐标系方向
 
         public Form1()
         {
@@ -124,10 +128,12 @@ namespace SMC_600Test
             LTSMC.smc_set_homemode(_ConnectNo, Y_axis, 1, 1, 1, 0);    //设置回零模式 原点方向、原点速度模式、原点模式、返回回零计数源
             LTSMC.smc_set_homemode(_ConnectNo, Z_axis, 0, 1, 1, 0);    //设置回零模式 原点方向、原点速度模式、原点模式、返回回零计数源
             LTSMC.smc_set_homemode(_ConnectNo, U_axis, 1, 1, 1, 0);    //设置回零模式 原点方向、原点速度模式、原点模式、返回回零计数源
+            LTSMC.smc_set_homemode(_ConnectNo, V_axis, 1, 1, 1, 0);    //设置回零模式 原点方向、原点速度模式、原点模式、返回回零计数源
             LTSMC.smc_set_pulse_outmode(_ConnectNo, X_axis, 2);//设置脉冲模式; 0,PUL+ DIR+ ;2, PUL+ DIR- 高脉冲/低方向  
             LTSMC.smc_set_pulse_outmode(_ConnectNo, Y_axis, 2);//设置脉冲模式
             LTSMC.smc_set_pulse_outmode(_ConnectNo, Z_axis, 2);//设置脉冲模式
-            LTSMC.smc_set_pulse_outmode(_ConnectNo, U_axis, 2);//设置脉冲模式
+            LTSMC.smc_set_pulse_outmode(_ConnectNo, U_axis, 0);//设置脉冲模式
+            LTSMC.smc_set_pulse_outmode(_ConnectNo, V_axis, 0);//设置脉冲模式
 
             LTSMC.smc_set_softlimit_unit(_ConnectNo, X_axis, 0, 0, 0, -80, 80);  //设置X轴软限位 2020.4.2 添加;研究软限位与插补的冲突
             LTSMC.smc_set_softlimit_unit(_ConnectNo, Y_axis, 0, 0, 0, -80, 80);  //设置Y轴软限位
@@ -182,6 +188,8 @@ namespace SMC_600Test
             LTSMC.smc_stop(CardNo, X_axis, mode);   //X轴停止运动
             LTSMC.smc_stop(CardNo, Y_axis, mode);   //Y轴停止运动
             LTSMC.smc_stop(CardNo, Z_axis, mode);   //Z轴停止运动
+            LTSMC.smc_stop(CardNo, U_axis, mode);   //Y轴停止运动
+            LTSMC.smc_stop(CardNo, V_axis, mode);   //Z轴停止运动
             LTSMC.smc_stop_multicoor(_ConnectNo, MyCrd, 0);
             LTSMC.smc_conti_close_list(_ConnectNo, MyCrd);
             
@@ -193,7 +201,7 @@ namespace SMC_600Test
             StringBuilder sb = new StringBuilder();
             StringBuilder sbWork = new StringBuilder();
             //
-            double pos = 0.0;
+            
             
             LTSMC.smc_get_position_unit(_ConnectNo, 0, ref pos);
             sb.AppendFormat("X={0},", pos);
@@ -258,7 +266,8 @@ namespace SMC_600Test
             X_speed = double.Parse(textBox_Xspeed.Text);
             Y_speed = double.Parse(textBox_Xspeed.Text);
             Z_speed = double.Parse(textBox_Zspeed.Text);
-            U_speed = double.Parse(textBox_Xspeed.Text);
+            U_speed = double.Parse(textBox_Xspeed.Text)*10;
+            V_speed = double.Parse(textBox_Xspeed.Text)*10;
 
             /// <summary>
             /// /读取轴脉冲状态
@@ -445,11 +454,14 @@ namespace SMC_600Test
         {
 
             ushort outmode = 2; //脉冲输出方式  0,PUL+ DIR+ ;2, PUL+ DIR- 高脉冲/低方向
+            ushort outmode_A = 0; //脉冲输出方式  0,PUL+ DIR+ ;0, PUL+ DIR+ 高脉冲/高方向
             ushort axis ;   //运动轴号，范围：0~最大轴数-1y
             double equiv = 1600; //脉冲当量，单位：1600 pulse/unit
+            double equiv_A = 17.77777778; //脉冲当量，单位：1600 pulse/unit
 
             double Start_Vel = 1.0;//回零起始速度，范围：0~2MHz频率;  1.0 unit/s= 1mm/s
             double Max_Vel = 10.0;//回零运行速度，范围：0~2MHz频率
+            double Max_Vel_A = 200.0;//回零运行速度，范围：0~2MHz频率
             double Tacc = 0.1; //加速时间，单位s，范围：0.001~10s
             double Tdec = 0.2;  //减速时间,单位s，范围：0.001~10s
 
@@ -528,16 +540,37 @@ namespace SMC_600Test
             state = 0;
             axis = U_axis; //运动轴号，范围：0~最大轴数-1y
             home_dir = 0; //设置 Y轴 回原点方向：0-负向、1-正向
-            LTSMC.smc_set_pulse_outmode(_ConnectNo, axis, outmode);                 //设置脉冲模式  2, PUL+ DIR- 高脉冲/低方向
-            LTSMC.smc_set_equiv(_ConnectNo, axis, equiv);                           //设置脉冲当量 1600 pulse/unit
+            LTSMC.smc_set_pulse_outmode(_ConnectNo, axis, outmode_A);                 //设置脉冲模式  2, PUL+ DIR- 高脉冲/低方向
+            LTSMC.smc_set_equiv(_ConnectNo, axis, equiv_A);                           //设置脉冲当量 1600 pulse/unit
             LTSMC.smc_set_alm_mode(_ConnectNo, axis, 0, 0, 0);                      //设置报警使能，关闭报警
             LTSMC.smc_write_sevon_pin(_ConnectNo, axis, 0);                         //打开伺服使能
             LTSMC.smc_set_home_pin_logic(_ConnectNo, axis, org_logic, filter);      //设置原点低电平有效  org_logic有效电平：0-低电平，1-高电平
-            LTSMC.smc_set_home_profile_unit(_ConnectNo, axis, Start_Vel, Max_Vel, Tacc, Tdec);//设置 轴号、起始速度、运行速度、加速时间、减速时间
+            LTSMC.smc_set_home_profile_unit(_ConnectNo, axis, Start_Vel, Max_Vel_A, Tacc, Tdec);//设置 轴号、起始速度、运行速度、加速时间、减速时间
             LTSMC.smc_set_homemode(_ConnectNo, axis, home_dir, 1, mode, Source);    //设置回零模式 原点方向、原点速度模式、原点模式、返回回零计数源
             LTSMC.smc_set_home_position_unit(_ConnectNo, axis, enable, position);   //设置偏移模式
             LTSMC.smc_home_move(_ConnectNo, axis);          //启动回零
-            
+
+            while (state == 0)
+            {
+                LTSMC.smc_get_home_result(_ConnectNo, axis, ref state);
+                Thread.Sleep(500);
+                Console.WriteLine(state); //
+            }
+            Console.WriteLine(state); //
+
+            state = 0;
+            axis = V_axis; //运动轴号，范围：0~最大轴数-1y
+            home_dir = 0; //设置 Y轴 回原点方向：0-负向、1-正向
+            LTSMC.smc_set_pulse_outmode(_ConnectNo, axis, outmode_A);               //设置脉冲模式  2, PUL+ DIR- 高脉冲/低方向
+            LTSMC.smc_set_equiv(_ConnectNo, axis, equiv_A);                         //设置脉冲当量 1600 pulse/unit
+            LTSMC.smc_set_alm_mode(_ConnectNo, axis, 0, 0, 0);                      //设置报警使能，关闭报警
+            LTSMC.smc_write_sevon_pin(_ConnectNo, axis, 0);                         //打开伺服使能
+            LTSMC.smc_set_home_pin_logic(_ConnectNo, axis, org_logic, filter);      //设置原点低电平有效  org_logic有效电平：0-低电平，1-高电平
+            LTSMC.smc_set_home_profile_unit(_ConnectNo, axis, Start_Vel, Max_Vel_A, Tacc, Tdec);//设置 轴号、起始速度、运行速度、加速时间、减速时间
+            LTSMC.smc_set_homemode(_ConnectNo, axis, home_dir, 1, mode, Source);    //设置回零模式 原点方向、原点速度模式、原点模式、返回回零计数源
+            LTSMC.smc_set_home_position_unit(_ConnectNo, axis, enable, position);   //设置偏移模式
+            LTSMC.smc_home_move(_ConnectNo, axis);          //启动回零
+
         }
 
         private void NewForm1_Click(object sender, EventArgs e)
@@ -646,7 +679,7 @@ namespace SMC_600Test
                         {
                            Dist[3] = gcodeParameter["A"] * directionVector_A;
                            int temp = 0;
-                           if (MachineControlSystem[3] < 0)
+                           if (MachineControlSystem[3] < 0)         //判断机械坐标是否 ＜0
                            {
                                temp = (int)(MachineControlSystem[3]/ (360 * directionVector_A)) - 1;
                                if (temp < -1)
@@ -667,7 +700,7 @@ namespace SMC_600Test
                            if (Math.Abs(axis_A_Distancediff - Dist[3]) == 180 * directionVector_A)   //目标刚好是180°
                            {
 
-                               Dist[3] = MachineControlSystem[3]+ 180 * gcodeParameter["U"];
+                               Dist[3] = MachineControlSystem[3]+ 180 * gcodeParameter["A"];
                            }
                            else if (axis_A_Distancediff == Dist[3]) //判断是相同，不做处理
                            {
@@ -698,10 +731,12 @@ namespace SMC_600Test
                            {
                                Dist[3] = MachineControlSystem[3];
                            }
+                           
                            MachineControlSystem[3] = Dist[3];
+                           temp = 0;
 
                         }
-
+                        
 
                         if (gcodeParameter.ContainsKey("B"))    //判断指令中是否有"U" 的元素
                         {
@@ -724,33 +759,33 @@ namespace SMC_600Test
                                 }
                             }//不知道这段在算什么，先放弃
 
-                            double axis_A_Distancediff = MachineControlSystem[4] - temp * 360 * directionVector_B;  //360
-                            if (Math.Abs(axis_A_Distancediff - Dist[4]) == 180 * directionVector_B)   //目标刚好是180°
+                            double axis_B_Distancediff = MachineControlSystem[4] - temp * 360 * directionVector_B;  //360
+                            if (Math.Abs(axis_B_Distancediff - Dist[4]) == 180 * directionVector_B)   //目标刚好是180°
                             {
 
                                 Dist[4] = MachineControlSystem[4] + 180 * gcodeParameter["B"];
                             }
-                            else if (axis_A_Distancediff == Dist[3]) //判断是相同，不做处理
+                            else if (axis_B_Distancediff == Dist[4]) //判断是相同，不做处理
                             {
 
                                 Dist[4] = MachineControlSystem[4];
                             }
-                            else if (Dist[4] - axis_A_Distancediff < 0 && Dist[4] - axis_A_Distancediff < -180 * directionVector_B) //判断是否是  -180<**＜0 
+                            else if (Dist[4] - axis_B_Distancediff < 0 && Dist[4] - axis_B_Distancediff < -180 * directionVector_B) //判断是否是  -180<**＜0 
                             {
 
                                 Dist[4] += 360 * directionVector_B * (temp + 1);
                             }
-                            else if (Dist[4] - axis_A_Distancediff < 0 && Dist[4] - axis_A_Distancediff > -180 * directionVector_B) ////判断是否是  -180<**＜0 
+                            else if (Dist[4] - axis_B_Distancediff < 0 && Dist[4] - axis_B_Distancediff > -180 * directionVector_B) ////判断是否是  -180<**＜0 
                             {
 
                                 Dist[4] += 360 * directionVector_B * temp;
                             }
-                            else if (Dist[4] - axis_A_Distancediff > 0 && Dist[4] - axis_A_Distancediff > 180 * directionVector_B) ////判断是否是  -180<**＜0 
+                            else if (Dist[4] - axis_B_Distancediff > 0 && Dist[4] - axis_B_Distancediff > 180 * directionVector_B) ////判断是否是  -180<**＜0 
                             {
 
                                 Dist[4] += 360 * directionVector_B * (temp - 1);
                             }
-                            else if (Dist[4] - axis_A_Distancediff > 0 && Dist[4] - axis_A_Distancediff < 180 * directionVector_B) ////判断是否是  -180<**＜0 
+                            else if (Dist[4] - axis_B_Distancediff > 0 && Dist[4] - axis_B_Distancediff < 180 * directionVector_B) ////判断是否是  -180<**＜0 
                             {
 
                                 Dist[4] += 360 * directionVector_B * temp;
@@ -760,9 +795,9 @@ namespace SMC_600Test
                                 Dist[4] = MachineControlSystem[4];
                             }
                             MachineControlSystem[4] = Dist[4];
+                            temp = 0;
 
                         }
-
 
 
                         if (gcodeParameter.ContainsKey("F"))    //判断指令中是否有"X" 的元素
@@ -1071,7 +1106,8 @@ namespace SMC_600Test
             AxisArray[0] = 0; //定义插补0轴为X轴
             AxisArray[1] = 1; //定义插补1轴为Y轴
             AxisArray[2] = 2; //定义插补2轴为Z轴
-            AxisArray[3] = 3; //定义插补2轴为Z轴
+            AxisArray[3] = 3; //定义插补3轴为U轴
+            AxisArray[4] = 4; //定义插补4轴为V轴
             LTSMC.smc_conti_set_lookahead_mode(_ConnectNo, MyCrd, lookaheadMode, LookaheadSegment, PathError, LookaheadAcc); //设置前瞻
             LTSMC.smc_set_vector_profile_unit(_ConnectNo, MyCrd, MyMin_Vel, MyMax_Vel, MyTacc, MyTdec, MyStop_Vel);   //设置插补运动速度
             LTSMC.smc_set_vector_s_profile(_ConnectNo, MyCrd, 0, 0.05);   //插补运动平滑参数
@@ -1139,6 +1175,7 @@ namespace SMC_600Test
             AxisArray[1] = 1; //定义插补1轴为Y轴
             AxisArray[2] = 2; //定义插补2轴为Z轴
             AxisArray[3] = 3; //定义插补3轴为U轴
+            AxisArray[4] = 4; //定义插补4轴为V轴
             cen[0] = 20; //定义X轴圆心坐标
             cen[1] = 20; //定义Y轴圆心坐标
 
