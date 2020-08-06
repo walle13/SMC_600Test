@@ -38,12 +38,16 @@ namespace SMC_600Test
         double min_Ydist = 0;    //运动距离，
         double max_Zdist = 0;    //运动距离， 脉冲？
         double min_Zdist = -40;    //运动距离，
-        double max_Udist = 4000;    //运动距离， 脉冲？
+        double max_Udist = 4000;    //运动距离， 脉冲？v
         double min_Udist = -4000;    //运动距离，
         double max_Vdist = 4000;    //运动距离， 脉冲？
         double min_Vdist = -4000;    //运动距离，
-
-        ushort mode = 0;     //停止模式，0；减速停止，1；紧急停止
+        double equiv = 1600;        //脉冲当量, X Y轴，单位：1600 pulse/unit
+        double virEquiv_A = 180;     //脉冲当量，虚拟U轴 单位：1600 pulse/unit
+        double equiv_A = 17.777778; //脉冲当量，U轴 单位：1600 pulse/unit
+        double virEquiv_B = 180;     //脉冲当量，虚拟V轴 单位：1600 pulse/unit
+        double equiv_B = 17.778; //脉冲当量，V轴 单位：1600 pulse/unit
+        ushort mode = 0;        //停止模式，0；减速停止，1；紧急停止
         ushort lookaheadMode = 1;   // 插补模式：0 -非前瞻模式0 ; 1 -前瞻模式1 ;2 -非前瞻模式2
         double workpos_X = 100;
         double workpos_Y = 100;
@@ -213,11 +217,16 @@ namespace SMC_600Test
             sb.AppendFormat("Z={0},", pos);
             sbWork.AppendFormat("Z={0},", pos - workpos_Z);
             LTSMC.smc_get_position_unit(_ConnectNo, 3, ref pos);
-            sb.AppendFormat("U={0},", pos);
-            sbWork.AppendFormat("U={0},", pos - workpos_U);
+            sb.AppendFormat("U={0},", pos * virEquiv_A / equiv_A);
+            sbWork.AppendFormat("U={0},", pos* virEquiv_A / equiv_A - workpos_U);
+          /*  sb.AppendFormat("U={0},", pos );
+            sbWork.AppendFormat("U={0},", pos - workpos_U);*/
+
             LTSMC.smc_get_position_unit(_ConnectNo, 4, ref pos);
-            sb.AppendFormat("V={0},", pos);
-            sbWork.AppendFormat("V={0},", pos - workpos_V);
+            /*sb.AppendFormat("V={0},", pos);
+            sbWork.AppendFormat("V={0},", pos - workpos_V);  */
+            sb.AppendFormat("V={0},", pos * virEquiv_B / equiv_B);
+            sbWork.AppendFormat("V={0},", pos* virEquiv_B / equiv_B - workpos_U);
             LTSMC.smc_get_position_unit(_ConnectNo, 5, ref pos);
             sb.AppendFormat("W={0},", pos);
             sbWork.AppendFormat("W={0},", pos - workpos_W);
@@ -456,8 +465,7 @@ namespace SMC_600Test
             ushort outmode = 2; //脉冲输出方式  0,PUL+ DIR+ ;2, PUL+ DIR- 高脉冲/低方向
             ushort outmode_A = 0; //脉冲输出方式  0,PUL+ DIR+ ;0, PUL+ DIR+ 高脉冲/高方向
             ushort axis ;   //运动轴号，范围：0~最大轴数-1y
-            double equiv = 1600; //脉冲当量，单位：1600 pulse/unit
-            double equiv_A = 17.77777778; //脉冲当量，单位：1600 pulse/unit
+            
 
             double Start_Vel = 1.0;//回零起始速度，范围：0~2MHz频率;  1.0 unit/s= 1mm/s
             double Max_Vel = 10.0;//回零运行速度，范围：0~2MHz频率
@@ -541,7 +549,7 @@ namespace SMC_600Test
             axis = U_axis; //运动轴号，范围：0~最大轴数-1y
             home_dir = 0; //设置 Y轴 回原点方向：0-负向、1-正向
             LTSMC.smc_set_pulse_outmode(_ConnectNo, axis, outmode_A);                 //设置脉冲模式  2, PUL+ DIR- 高脉冲/低方向
-            LTSMC.smc_set_equiv(_ConnectNo, axis, equiv_A);                           //设置脉冲当量 1600 pulse/unit
+            LTSMC.smc_set_equiv(_ConnectNo, axis, virEquiv_A);                           //设置脉冲当量 1600 pulse/unit
             LTSMC.smc_set_alm_mode(_ConnectNo, axis, 0, 0, 0);                      //设置报警使能，关闭报警
             LTSMC.smc_write_sevon_pin(_ConnectNo, axis, 0);                         //打开伺服使能
             LTSMC.smc_set_home_pin_logic(_ConnectNo, axis, org_logic, filter);      //设置原点低电平有效  org_logic有效电平：0-低电平，1-高电平
@@ -562,7 +570,7 @@ namespace SMC_600Test
             axis = V_axis; //运动轴号，范围：0~最大轴数-1y
             home_dir = 0; //设置 Y轴 回原点方向：0-负向、1-正向
             LTSMC.smc_set_pulse_outmode(_ConnectNo, axis, outmode_A);               //设置脉冲模式  2, PUL+ DIR- 高脉冲/低方向
-            LTSMC.smc_set_equiv(_ConnectNo, axis, equiv_A);                         //设置脉冲当量 1600 pulse/unit
+            LTSMC.smc_set_equiv(_ConnectNo, axis, virEquiv_B);                         //设置脉冲当量 1600 pulse/unit
             LTSMC.smc_set_alm_mode(_ConnectNo, axis, 0, 0, 0);                      //设置报警使能，关闭报警
             LTSMC.smc_write_sevon_pin(_ConnectNo, axis, 0);                         //打开伺服使能
             LTSMC.smc_set_home_pin_logic(_ConnectNo, axis, org_logic, filter);      //设置原点低电平有效  org_logic有效电平：0-低电平，1-高电平
@@ -732,8 +740,11 @@ namespace SMC_600Test
                                Dist[3] = MachineControlSystem[3];
                            }
                            
-                           MachineControlSystem[3] = Dist[3];
-                           temp = 0;
+                           MachineControlSystem[3] = Dist[3];   //前面都是根据G指令的 运算目标数据
+                          
+                           double testDist = Dist[3] * equiv_A / virEquiv_A;
+                            Dist[3] = testDist;     //这里是虚拟 目标数据，用于匹配 虚拟脉冲当量
+                            temp = 0;
 
                         }
                         
@@ -794,7 +805,9 @@ namespace SMC_600Test
                             {
                                 Dist[4] = MachineControlSystem[4];
                             }
-                            MachineControlSystem[4] = Dist[4];
+                            MachineControlSystem[4] = Dist[4];     //前面都是根据G指令的 运算目标数据
+                            double testDist = Dist[4] * equiv_B / virEquiv_B;
+                            Dist[4] = testDist;         //这里是虚拟 目标数据，用于匹配 虚拟脉冲当量
                             temp = 0;
 
                         }

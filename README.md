@@ -139,11 +139,11 @@ G01 X-90 Y-90 Z0 A180 B180 F20
 G01 X-90 Y-90 Z0 A160 B160 F20
 G01 X-90 Y-90 Z0 A190 B190 F20
 G01 X-90 Y-90 Z0 A30 B30 F20
-G01 X-90 Y-90 Z0 A355 B355 F20
+G01 X-90 Y-90 Z0 A355 B0 F20
 M103
 
 尽量让驱动器的脉冲当量设定为整数，保证累加后输出的脉冲有足够的精度。
 Dist[3] 为理论输出的机械坐标
 pos 为实际的设备的机械坐标
 需要处理NX后处理精度，同时消除F1000的速度
-https://wenku.baidu.com/view/6472561b26d3240c844769eae009581b6bd9bdd7.html
+https://wenku.baidu.com/view/6472561b26d3240c844769eae009581b6bd9bdd7.html  UG后处理制作全过程跟重要参数
