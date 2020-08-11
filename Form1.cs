@@ -459,6 +459,33 @@ namespace SMC_600Test
             LTSMC.smc_stop(CardNo, U_axis, mode);  //轴停止运动 （卡号， 运动轴号 ， 停止模式：0；减速停止，1；紧急停止）
         }
 
+
+        private void V_axis_plus_MouseDown(object sender, MouseEventArgs e)
+        {
+            LTSMC.smc_set_profile_unit(CardNo, V_axis, start_speed, U_speed, tacc, tdec, stop_speed);//设置速度参数
+            LTSMC.smc_set_s_profile(CardNo, V_axis, 0, s_pare);   //设置S平滑系数
+            LTSMC.smc_pmove_unit(CardNo, V_axis, max_Udist, 1);    //启动定长运动
+            Console.WriteLine("123"); //
+        }
+
+        private void V_axis_plus_MouseUp(object sender, MouseEventArgs e)
+        {
+            LTSMC.smc_stop(CardNo, V_axis, mode);  //轴停止运动 （卡号， 运动轴号 ， 停止模式：0；减速停止，1；紧急停止）
+        }
+
+        private void V_axis_sub_MouseDown(object sender, MouseEventArgs e)
+        {
+            LTSMC.smc_set_profile_unit(CardNo, V_axis, start_speed, U_speed, tacc, tdec, stop_speed);//设置速度参数
+            LTSMC.smc_set_s_profile(CardNo, V_axis, 0, s_pare);   //设置S平滑系数
+            LTSMC.smc_pmove_unit(CardNo, V_axis, min_Udist, 1);    //启动定长运动
+            Console.WriteLine("123"); //
+        }
+
+        private void V_axis_sub_MouseUp(object sender, MouseEventArgs e)
+        {
+            LTSMC.smc_stop(CardNo, V_axis, mode);  //轴停止运动 （卡号， 运动轴号 ， 停止模式：0；减速停止，1；紧急停止）
+        }
+
         private void MachHome_Click(object sender, EventArgs e)
         {
 
@@ -621,6 +648,10 @@ namespace SMC_600Test
 
                     for (int i = 1; i < subGcodes.Length; ++i)  //提取单行指令的 单段数据。
                     {
+                        if (subGcodes[i].Length < 1)
+                        {
+                            continue;
+                        }
                         string GcodeKey = subGcodes[i].Substring(0, 1);  //提取GcodeKey ,即 Dictionary 的字典位置。
                         if (GcodeKey != null)
                         {
@@ -1290,6 +1321,7 @@ namespace SMC_600Test
             LTSMC.smc_conti_pause_list(_ConnectNo, MyCrd);
         }
 
+        
     }
 
 }
